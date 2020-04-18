@@ -69,6 +69,18 @@ function cplexSolve(inst::UndeadInstance)
     # Solve the model
     optimize!(m)
 
+    buf = JuMP.value.(x)
+
+    for i in 1:size(buf,1)
+        for j in 1:size(buf,2)
+            for k in 1:size(buf,3)
+                if buf[i,j,k] == 1
+                    inst.X[i,j] = k
+                end
+            end
+        end
+    end
+
     # Return:
     # 1 - true if an optimum is found
     # 2 - the resolution time
