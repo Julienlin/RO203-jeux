@@ -59,7 +59,7 @@ function cplexSolve(inst::UndeadInstance)
     #     end
     # end
 
-    @constraint(m, [c = 1:size(C, 1)], sum(x[ C[c][el][1], C[c][el][2], 2 ] for el in 1:size(C[c], 1)) # number of zombies on the path
+    @constraint(m, [c = 1:size(C, 1)], 0 +sum(x[ C[c][el][1], C[c][el][2], 2 ] for el in 1:size(C[c], 1)) # number of zombies on the path
                                     + sum(x[ C[c][el][1], C[c][el][2], 3 ] * C[c][el][3] for el in 1:size(C[c], 1)) # number of vampires on the path
                                     + sum(x[C[c][el][1], C[c][el][2], 1] * (1 - C[c][el][3]) for el in 1:size(C[c], 1)) # number of ghosts on the path
                                     == Y[c] )
