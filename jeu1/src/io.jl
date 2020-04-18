@@ -20,7 +20,7 @@ function readInputFile(inputFile::String)
     data = readlines(datafile)
 
     # Remove comment lines from data
-    filter!(el->el[1] != '#', data)
+    filter!(el->strip(el)[1] != '#', data)
     close(datafile)
 
     # For each line of the input file
