@@ -45,20 +45,20 @@ function cplexSolve(inst::UndeadInstance)
 
 
     ## Constraint on unicity of the type of box
-    ## TODO: A verifier
     @constraint(m, [i = 1:N[1], j = 1:N[2]], sum(x[i,j,k] for k in 1:5) == 1)
 
     ## Constraint on number of monsters per type
-    @constraint(m, sum(x[i,j, 1] for i in 1:N[1], j in 1:N[2]) == G)
-    @constraint(m, sum(x[i,j, 2] for i in 1:N[1], j in 1:N[2]) == Z)
-    @constraint(m, sum(x[i,j, 3] for i in 1:N[1], j in 1:N[2]) == V)
+    @constraint(m, sum(x[i,j, 1] for i = 1:N[1], j = 1:N[2]) == G)
+    @constraint(m, sum(x[i,j, 2] for i = 1:N[1], j = 1:N[2]) == Z)
+    @constraint(m, sum(x[i,j, 3] for i = 1:N[1], j = 1:N[2]) == V)
 
     ## Constraint on number of monsters per path
-    for c in 1:size(C, 1)
-        for el in 1:size(C[c], 1)
+    # for c in 1:size(C, 1)
+    #     for el in 1:size(C[c], 1)
 
-        end
-    end
+    #     end
+    # end
+
     @constraint(m, [c = 1:size(C, 1)], sum(x[ C[c][el][1], C[c][el][2], 2 ] for el in 1:size(C[c], 1)) # number of zombies on the path
                                     + sum(x[ C[c][el][1], C[c][el][2], 3 ] * C[c][el][3] for el in 1:size(C[c], 1)) # number of vampires on the path
                                     + sum(x[C[c][el][1], C[c][el][2], 1] * (1 - C[c][el][3]) for el in 1:size(C[c], 1)) # number of ghosts on the path
