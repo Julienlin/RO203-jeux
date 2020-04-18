@@ -4,6 +4,8 @@ using JuMP
 using Plots
 import GR
 
+include("instance.jl")
+
 """
 Read an instance from an input file
 
@@ -16,18 +18,247 @@ function readInputFile(inputFile::String)
     datafile = open(inputFile)
 
     data = readlines(datafile)
+
+    # Remove comment lines from data
+    filter!(el->el[1] != '#', data)
     close(datafile)
 
     # For each line of the input file
-    for line in data
 
-        # TODO
-        println("In file io.jl, in method readInputFile(), TODO: read a line of the input file")
 
+    # On the first line are the dimensions of the grid
+    buf = split(data[1], ',')
+    xN = parse(Int, buf[1])
+    yN = parse(Int, buf[2])
+    N = [xN,yN]
+
+
+    # Parse G V and Z
+    buf = split(data[2], '=')
+    G = parse(Int, buf[2])
+
+    buf = split(data[3], '=')
+    V = parse(Int, buf[2])
+
+    buf = split(data[4], '=')
+    Z = parse(Int, buf[2])
+
+    # Grid
+    X = zeros(Int, N[1], N[2])
+    for i in 5:(N[1] + 4)
+        line = data[i]
+        if N[2] != length(line)
+            println("Problem of grid in input file")
+        end
+        for j in 1:N[2]
+            if line[j] == '/'
+                X[i - 4,j] = 4
+            elseif line[j] == '\\'
+                X[i - 4,j] = 5
+            end
+        end
     end
 
+    # Parsing number of monsters for each path.
+    Y = map(x->parse(Int64, x), split(data[N[1] + 5 ], ','))
+
+    # Creating the paths of light in the grid
+    if size(Y, 1) != 2 * (N[1] + N[2])
+        println("Problem in the input file : wrong number of values")
+    end
+    C  = Vector{Vector{Vector{Int64}}}([])
+    for i in 1:2 * (N[1] + N[2]) # For each path in the grid
+        c = Vector{Vector{Int64}}([])
+
+        # Direction of the light, coords of first cell
+        if i <= N[2]
+            direction = "down"
+            x = 1 # number of line
+            y = i # number of column
+        elseif i <= N[1] + N[2]
+            direction = "left"
+            x = i - N[2]
+            y = N[2]
+        elseif i <= 2 * N[2] + N[1]
+            direction = "up"
+            x = N[1]
+            y = i - N[1] - N[2]
+        else
+            direction = "right"
+            x = i - (2 * N[2] + N[1])
+            y = 1
+        end
+        mirror = 1 # the visibility equals 1 before mirror, 0 after
+        out = false # The path is to its end when the light gets out of the grid
+        while !out
+            if x < 1 || x > N[1] || y < 1 || y > N[2]
+                out = true
+            else
+                # if there is a mirror, there is a change in direction
+                if X[x, y] == 4 # '/'
+                    mirror = 0
+                    if direction == "down"
+                        direction = "left"
+                    elseif direction == "left"
+                        direction = "down"
+                    elseif direction == "up"
+                        direction = "right"
+                    elseif direction == "right"
+                        direction = "up"
+                    end
+                elseif X[x, y] == 5 # '\'
+                    mirror = 0
+                    if direction == "down"
+                        direction = "right"
+                    elseif direction == "left"
+                        direction = "up"
+                    elseif direction == "up"
+                        direction = "left"
+                    elseif direction == "right"
+                        direction = "down"
+                    end
+                        # if there is no mirror in the cell, the cell is added to the path
+                else
+                    push!(c, [x,y,mirror])
+                end
+
+                    # going to next cell
+                if direction == "down"
+                    x = x + 1
+                elseif direction == "left"
+                    y = y - 1
+                elseif direction == "up"
+                    x = x - 1
+                elseif direction == "right"
+                    y = y + 1
+                end
+
+            end
+        end
+        # Add the calculated path to C
+        push!(C, c)
+    end
+    return UndeadInstance(N, X, Z, G, V, C, Y)
 end
 
+"""
+Print in terminal the grid of the problem
+Arguments :
+- instance of the problem
+"""
+function displayGrid(instance::UndeadInstance)
+    println("###########################################################")
+    println("                   Game Undead : Grid")
+    println("###########################################################")
+    println("")
+
+    # print total numbers of monsters
+    print("Ghosts : ")
+    println(instance.G)
+    print("Vampires : ")
+    println(instance.V)
+    print("Zombies : ")
+    println(instance.Z)
+
+    println("")
+    print(" ")
+    Y = instance.Y
+    X = instance.X
+    N = instance.N
+    # Print values of paths beginning on the top
+    for i in 1:N[2]
+        print(" ")
+        print(Y[i])
+    end
+    println("")
+    for i in 1:N[1]
+        indice = 2 * (N[1] + N[2]) - i + 1
+        print(Y[indice]) # Print value of path beginning on the left
+        # Print line of grid
+        for j in 1:N[2]
+            print(" ")
+            if X[i,j] == 4
+                print("/")
+            elseif X[i,j] == 5
+                print("\\")
+            else
+                print(" ")
+            end
+        end
+        print(" ")
+        println(Y[N[2] + i]) # Print value of path beginning on the right
+    end
+    # Print values of paths beginning from the bottom
+    print(" ")
+    for i in 1:N[2]
+        print(" ")
+        ind = N[1] + 2 * N[2] - i + 1
+        print(Y[ind])
+    end
+end
+
+"""
+Print in terminal the solution of the problem
+Arguments :
+- instance of the problem
+"""
+function displaySolution(instance::UndeadInstance)
+    println("###########################################################")
+    println("                   Game Undead : Solution")
+    println("###########################################################")
+    println("")
+
+    # print total numbers of monsters
+    print("Ghosts : ")
+    println(instance.G)
+    print("Vampires : ")
+    println(instance.V)
+    print("Zombies : ")
+    println(instance.Z)
+
+    println("")
+    print(" ")
+    Y = instance.Y
+    X = instance.X
+    N = instance.N
+    # Print values of paths beginning on the top
+    for i in 1:N[2]
+        print(" ")
+        print(Y[i])
+    end
+    println("")
+    for i in 1:N[1]
+        indice = 2 * (N[1] + N[2]) - i + 1
+        print(Y[indice]) # Print value of path beginning on the left
+        # Print line of grid
+        for j in 1:N[2]
+            print(" ")
+            if X[i,j] == 1
+                print("G")
+            elseif X[i,j] == 2
+                print("Z")
+            elseif X[i,j] == 3
+                print("V")
+            elseif X[i,j] == 4
+                print("/")
+            elseif X[i,j] == 5
+                print("\\")
+            else
+                print(" ")
+            end
+        end
+        print(" ")
+        println(Y[N[2] + i]) # Print value of path beginning on the right
+    end
+    # Print values of paths beginning from the bottom
+    print(" ")
+    for i in 1:N[2]
+        print(" ")
+        ind = N[1] + 2 * N[2] - i + 1
+        print(Y[ind])
+    end
+    println("")
+end
 
 """
 Create a pdf file which contains a performance diagram associated to the results of the ../res folder
@@ -44,25 +275,25 @@ Prerequisites:
 function performanceDiagram(outputFile::String)
 
     resultFolder = "../res/"
-    
+
     # Maximal number of files in a subfolder
     maxSize = 0
 
     # Number of subfolders
     subfolderCount = 0
 
-    folderName = Array{String, 1}()
+    folderName = Array{String,1}()
 
     # For each file in the result folder
     for file in readdir(resultFolder)
 
         path = resultFolder * file
-        
-        # If it is a subfolder
+
+    # If it is a subfolder
         if isdir(path)
-            
+
             folderName = vcat(folderName, file)
-             
+
             subfolderCount += 1
             folderSize = size(readdir(path), 1)
 
@@ -86,15 +317,15 @@ function performanceDiagram(outputFile::String)
 
     # For each subfolder
     for file in readdir(resultFolder)
-            
+
         path = resultFolder * file
-        
+
         if isdir(path)
 
             folderCount += 1
             fileCount = 0
 
-            # For each text file in the subfolder
+    # For each text file in the subfolder
             for resultFile in filter(x->occursin(".txt", x), readdir(path))
 
                 fileCount += 1
@@ -105,46 +336,46 @@ function performanceDiagram(outputFile::String)
 
                     if solveTime > maxSolveTime
                         maxSolveTime = solveTime
-                    end 
-                end 
-            end 
+                    end
+                end
+            end
         end
-    end 
+    end
 
     # Sort each row increasingly
-    results = sort(results, dims=2)
+    results = sort(results, dims = 2)
 
     println("Max solve time: ", maxSolveTime)
 
     # For each line to plot
-    for dim in 1: size(results, 1)
+    for dim in 1:size(results, 1)
 
-        x = Array{Float64, 1}()
-        y = Array{Float64, 1}()
+        x = Array{Float64,1}()
+        y = Array{Float64,1}()
 
-        # x coordinate of the previous inflexion point
+    # x coordinate of the previous inflexion point
         previousX = 0
         previousY = 0
 
         append!(x, previousX)
         append!(y, previousY)
-            
-        # Current position in the line
+
+    # Current position in the line
         currentId = 1
 
-        # While the end of the line is not reached 
+    # While the end of the line is not reached
         while currentId != size(results, 2) && results[dim, currentId] != Inf
 
-            # Number of elements which have the value previousX
+    # Number of elements which have the value previousX
             identicalValues = 1
 
-             # While the value is the same
+        # While the value is the same
             while results[dim, currentId] == previousX && currentId <= size(results, 2)
                 currentId += 1
                 identicalValues += 1
             end
 
-            # Add the proper points
+    # Add the proper points
             append!(x, previousX)
             append!(y, currentId - 1)
 
@@ -152,28 +383,28 @@ function performanceDiagram(outputFile::String)
                 append!(x, results[dim, currentId])
                 append!(y, currentId - 1)
             end
-            
+
             previousX = results[dim, currentId]
             previousY = currentId - 1
-            
+
         end
 
         append!(x, maxSolveTime)
         append!(y, currentId - 1)
 
-        # If it is the first subfolder
+    # If it is the first subfolder
         if dim == 1
 
-            # Draw a new plot
-            plot(x, y, label = folderName[dim], legend = :bottomright, xaxis = "Time (s)", yaxis = "Solved instances",linewidth=3)
+    # Draw a new plot
+            plot(x, y, label = folderName[dim], legend = :bottomright, xaxis = "Time (s)", yaxis = "Solved instances", linewidth = 3)
 
-        # Otherwise 
+    # Otherwise
         else
-            # Add the new curve to the created plot
-            savefig(plot!(x, y, label = folderName[dim], linewidth=3), outputFile)
-        end 
+    # Add the new curve to the created plot
+            savefig(plot!(x, y, label = folderName[dim], linewidth = 3), outputFile)
+        end
     end
-end 
+end
 
 """
 Create a latex file which contains an array with the results of the ../res folder.
@@ -188,10 +419,10 @@ Prerequisites:
 - Each text file contains a variable "solveTime" and a variable "isOptimal"
 """
 function resultsArray(outputFile::String)
-    
+
     resultFolder = "../res/"
     dataFolder = "../data/"
-    
+
     # Maximal number of files in a subfolder
     maxSize = 0
 
@@ -205,7 +436,7 @@ function resultsArray(outputFile::String)
     println(fout, raw"""\documentclass{article}
 
 \usepackage[french]{babel}
-\usepackage [utf8] {inputenc} % utf-8 / latin1 
+\usepackage [utf8] {inputenc} % utf-8 / latin1
 \usepackage{multicol}
 
 \setlength{\hoffset}{-18pt}
@@ -225,33 +456,33 @@ function resultsArray(outputFile::String)
 
     header = raw"""
 \begin{center}
-\renewcommand{\arraystretch}{1.4} 
- \begin{tabular}{l"""
+\renewcommand{\arraystretch}{1.4}
+\begin{tabular}{l"""
 
     # Name of the subfolder of the result folder (i.e, the resolution methods used)
-    folderName = Array{String, 1}()
+    folderName = Array{String,1}()
 
     # List of all the instances solved by at least one resolution method
-    solvedInstances = Array{String, 1}()
+    solvedInstances = Array{String,1}()
 
     # For each file in the result folder
     for file in readdir(resultFolder)
 
         path = resultFolder * file
-        
-        # If it is a subfolder
+
+    # If it is a subfolder
         if isdir(path)
 
-            # Add its name to the folder list
+    # Add its name to the folder list
             folderName = vcat(folderName, file)
-             
+
             subfolderCount += 1
             folderSize = size(readdir(path), 1)
 
-            # Add all its files in the solvedInstances array
+    # Add all its files in the solvedInstances array
             for file2 in filter(x->occursin(".txt", x), readdir(path))
                 solvedInstances = vcat(solvedInstances, file2)
-            end 
+            end
 
             if maxSize < folderSize
                 maxSize = folderSize
@@ -296,32 +527,32 @@ function resultsArray(outputFile::String)
     # For each solved files
     for solvedInstance in solvedInstances
 
-        # If we do not start a new array on a new page
+    # If we do not start a new array on a new page
         if rem(id, maxInstancePerPage) == 0
             println(fout, footer, "\\newpage")
             println(fout, header)
-        end 
+        end
 
-        # Replace the potential underscores '_' in file names
+    # Replace the potential underscores '_' in file names
         print(fout, replace(solvedInstance, "_" => "\\_"))
 
-        # For each resolution method
+    # For each resolution method
         for method in folderName
 
             path = resultFolder * method * "/" * solvedInstance
 
-            # If the instance has been solved by this method
+    # If the instance has been solved by this method
             if isfile(path)
 
                 include(path)
 
-                println(fout, " & ", round(solveTime, digits=2), " & ")
+                println(fout, " & ", round(solveTime, digits = 2), " & ")
 
                 if isOptimal
                     println(fout, "\$\\times\$")
-                end 
-                
-            # If the instance has not been solved by this method
+                end
+
+    # If the instance has not been solved by this method
             else
                 println(fout, " & - & - ")
             end
@@ -338,5 +569,5 @@ function resultsArray(outputFile::String)
     println(fout, "\\end{document}")
 
     close(fout)
-    
-end 
+
+end
