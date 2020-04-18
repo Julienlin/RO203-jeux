@@ -1,0 +1,13 @@
+# Dimensions de la grille :
+4,4
+# Totaux des monstres :
+G=0
+V=0
+Z=16
+# Grille :
+----
+----
+----
+----
+# Valeur des chemins (sens horaire a partir d en haut a gauche)
+4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4
