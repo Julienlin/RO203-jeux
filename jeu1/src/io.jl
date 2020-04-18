@@ -66,9 +66,10 @@ function readInputFile(inputFile::String)
     if size(Y, 1) != 2 * (N[1] + N[2])
         println("Problem in the input file : wrong number of values")
     end
-    C  = Vector{Vector{Vector{Int64}}}([])
-    for i in 1:2 * (N[1] + N[2]) # For each path in the grid
-        c = Vector{Vector{Int64}}([])
+    C  = Vector{Vector{Vector{Int64}}}(undef,0)
+    # FIXME: Pb with the element
+    for i in 1:(2 * (N[1] + N[2])) # For each path in the grid
+        c = Vector{Vector{Int64}}(undef, 0)
 
         # Direction of the light, coords of first cell
         if i <= N[2]
@@ -138,6 +139,7 @@ function readInputFile(inputFile::String)
         # Add the calculated path to C
         push!(C, c)
     end
+    println(C)
     return UndeadInstance(N, X, Z, G, V, C, Y)
 end
 
