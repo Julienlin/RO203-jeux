@@ -195,6 +195,7 @@ function displayGrid(instance::UndeadInstance)
         ind = N[1] + 2 * N[2] - i + 1
         print(Y[ind])
     end
+    println("")
 end
 
 """
