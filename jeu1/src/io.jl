@@ -67,7 +67,6 @@ function readInputFile(inputFile::String)
         println("Problem in the input file : wrong number of values")
     end
     C  = Vector{Vector{Vector{Int64}}}(undef,0)
-    # FIXME: Pb with the element
     for i in 1:(2 * (N[1] + N[2])) # For each path in the grid
         c = Vector{Vector{Int64}}(undef, 0)
 
@@ -83,10 +82,12 @@ function readInputFile(inputFile::String)
         elseif i <= 2 * N[2] + N[1]
             direction = "up"
             x = N[1]
-            y = i - N[1] - N[2]
+            # y = i - N[1] - N[2]
+            y = 2*N[2]+N[1]+1 - i
         else
             direction = "right"
-            x = i - (2 * N[2] + N[1])
+            # x = i - (2 * N[2])-1
+            x = 2*N[2]+2*N[1]+1 - i
             y = 1
         end
         mirror = 1 # the visibility equals 1 before mirror, 0 after
