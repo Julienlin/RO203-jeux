@@ -105,17 +105,18 @@ The results are written in "../res/cplex" and "../res/heuristic"
 
 Remark: If an instance has previously been solved (either by cplex or the heuristic) it will not be solved again
 """
-    function solveDataSet()
+function solveDataSet()
 
-        dataFolder = "../data/"
-        resFolder = "../res/"
+    dataFolder = "../data/"
+    resFolder = "../res/"
+    resInstFolder = "../resInst/"
 
     # Array which contains the name of the resolution methods
-        resolutionMethod = ["cplex"]
+    resolutionMethod = ["cplex"]
     # resolutionMethod = ["cplex", "heuristique"]
 
     # Array which contains the result folder of each resolution method
-        resolutionFolder = resFolder .* resolutionMethod
+    resolutionFolder = resFolder .* resolutionMethod
 
     # Create each result folder if it does not exist
         for folder in resolutionFolder
@@ -132,20 +133,22 @@ Remark: If an instance has previously been solved (either by cplex or the heuris
         for file in filter(x->occursin(".txt", x), readdir(dataFolder))
 
             println("-- Resolution of ", file)
-            readInputFile(dataFolder * file)
+            inst = readInputFile(dataFolder * file)
 
         # TODO
-            println("In file resolution.jl, in method solveDataSet(), TODO: read value returned by readInputFile()")
+            # println("In file resolution.jl, in method solveDataSet(), TODO: read value returned by readInputFile()")
 
         # For each resolution method
             for methodId in 1:size(resolutionMethod, 1)
 
                 outputFile = resolutionFolder[methodId] * "/" * file
+                outputInstFile = resInstFolder*file
 
             # If the instance has not already been solved by this method
                 if !isfile(outputFile)
 
                     fout = open(outputFile, "w")
+                    fInstOut = open(outputInstFile,"w")
 
                     resolutionTime = -1
                     isOptimal = false
@@ -154,15 +157,18 @@ Remark: If an instance has previously been solved (either by cplex or the heuris
                     if resolutionMethod[methodId] == "cplex"
 
                     # TODO
-                        println("In file resolution.jl, in method solveDataSet(), TODO: fix cplexSolve() arguments and returned values")
+                        # println("In file resolution.jl, in method solveDataSet(), TODO: fix cplexSolve() arguments and returned values")
 
                     # Solve it and get the results
-                        isOptimal, resolutionTime = cplexSolve()
+                        isOptimal, resolutionTime = cplexSolve(inst)
 
                     # If a solution is found, write it
                         if isOptimal
                         # TODO
-                            println("In file resolution.jl, in method solveDataSet(), TODO: write cplex solution in fout")
+                            # println("In file resolution.jl, in method solveDataSet(), TODO: write cplex solution in fout")
+                            writeToFile(true,inst, fInstOut)
+                            # println(fout, "isOptimal = $isOptimal")
+                            # println(fout,"resolutionTime = $resolutionTime")
                         end
 
                 # If the method is one of the heuristics
@@ -202,6 +208,8 @@ Remark: If an instance has previously been solved (either by cplex or the heuris
                 # TODO
                     println("In file resolution.jl, in method solveDataSet(), TODO: write the solution in fout")
                     close(fout)
+                    close(fInstOut)
+
                 end
 
 
@@ -210,5 +218,5 @@ Remark: If an instance has previously been solved (either by cplex or the heuris
                 println(resolutionMethod[methodId], " optimal: ", isOptimal)
                 println(resolutionMethod[methodId], " time: " * string(round(solveTime, sigdigits = 2)) * "s\n")
             end
-end
     end
+end

@@ -66,7 +66,14 @@ function readInputFile(inputFile::String)
     if size(Y, 1) != 2 * (N[1] + N[2])
         println("Problem in the input file : wrong number of values")
     end
-    C  = Vector{Vector{Vector{Int64}}}(undef,0)
+    C  = createPath(N,X)
+    # println(C)
+
+    return UndeadInstance(N, X, Z, G, V, C, Y)
+end
+
+function createPath(N,X)
+    C = Vector{Vector{Vector{Int64}}}(undef,0)
     for i in 1:(2 * (N[1] + N[2])) # For each path in the grid
         c = Vector{Vector{Int64}}(undef, 0)
 
@@ -140,8 +147,61 @@ function readInputFile(inputFile::String)
         # Add the calculated path to C
         push!(C, c)
     end
-    println(C)
-    return UndeadInstance(N, X, Z, G, V, C, Y)
+    return C
+
+end
+
+"""
+Write an instance of the game in a given file
+Arguments :
+    - path::String : path to file where we write
+    - ins::UndeadInstance : instance of the game
+"""
+function writeToFile(isSolution::Bool, inst::UndeadInstance, file::IOStream)
+    write(file,"# Dimensions de la grille :")
+    write(file,"\n")
+    write(file, string(inst.N[1]),",",string(inst.N[2]))
+    write(file,"\n")
+    write(file,"# Totaux des monstres :")
+    write(file,"\n")
+    write(file, "G=",string(inst.G))
+    write(file,"\n")
+    write(file, "V=",string(inst.V))
+    write(file,"\n")
+    write(file, "Z=",string(inst.Z))
+    write(file,"\n")
+    write(file,"# Grille :")
+    write(file,"\n")
+    for i in 1:inst.N[1]
+        for j in 1:inst.N[2]
+            if inst.X[i,j] == 0
+                write(file,"-")
+            elseif inst.X[i,j] == 4
+                write(file,'/')
+            elseif inst.X[i,j] == 5
+                write(file,'\\')
+            else
+                if isSolution
+                    if inst.X[i,j] == 1
+                        write(file,"G")
+                    elseif inst.X[i,j] == 2
+                        write(file,"Z")
+                    elseif inst.X[i,j] == 3
+                        write(file,"V")
+                    end
+                else
+                    write(file,"-")
+                end
+            end
+        end
+        write(file,"\n")
+    end
+    write(file,"# Valeur des chemins (sens horaire a partir d en haut a gauche)")
+    write(file,"\n")
+    for i in 1:size(inst.Y,1)
+        write(file,string(inst.Y[i]),",")
+    end
+    write(file,"\n")
 end
 
 """
