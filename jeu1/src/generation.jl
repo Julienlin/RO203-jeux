@@ -12,45 +12,54 @@ function generateInstance(N::Array{Int64})
 
     # Array that will contain the generated grid
     X = zeros(Int, N[1], N[2])
-    #Counting the total number of monsters at the same time
+    # Counting the total number of monsters at the same time
     G = 0
     V = 0
     Z = 0
     for i in 1:N[1]
         for j in 1:N[2]
-            #choosing randomly the type of the cell (mirror, monster)
-            type = rand((1,2,3,4,5))
-            X[i,j] = type
-            if type ==1
-                G += 1
-            end
-            if type ==2
-                Z += 1
-            end
-            if type ==3
-                V += 1
+            # choosing randomly the type of the cell (mirror, monster)
+
+            mirror = rand()
+            if mirror < 1 / 5 # probability of having a mirror
+                if rand() < 1 / 2
+                    X[i,j] = 4
+                else
+                    X[i,j] = 5
+                end
+            else
+                type = rand((1, 2, 3))
+                X[i,j] = type
+
+                if type == 1
+                    G += 1
+                elseif type == 2
+                    Z += 1
+                elseif type == 3
+                    V += 1
+                end
             end
         end
     end
 
-    C = createPath(N,X)
+    C = createPath(N, X)
     # Array that contains the values of each path
-    Y = zeros(Int,2 * (N[1] + N[2]))
+    Y = zeros(Int, 2 * (N[1] + N[2]))
     for c in 1:2 * (N[1] + N[2])
         chemin = C[c]
-        for i in 1:size(chemin,1)
+        for i in 1:size(chemin, 1)
             cell = chemin[i]
             if X[cell[1],cell[2]] == 2 # Si il y a un zombie dans la case, on le voit
                 Y[c] += 1
-            elseif X[cell[1],cell[2]] == 1 && cell[3]==0 #Si il y a un fantome et qu'on est en reflexion r/r a un miroir
-                Y[c] +=1
-            elseif X[cell[1],cell[2]] == 3 && cell[3]==1 #Si il y a un vampire et qu'on est en vision directe
+            elseif X[cell[1],cell[2]] == 1 && cell[3] == 0 # Si il y a un fantome et qu'on est en reflexion r/r a un miroir
+                Y[c] += 1
+            elseif X[cell[1],cell[2]] == 3 && cell[3] == 1 # Si il y a un vampire et qu'on est en vision directe
                 Y[c] += 1
             end
         end
     end
 
-    return UndeadInstance(N,X,Z,G,V,C,Y)
+    return UndeadInstance(N, X, Z, G, V, C, Y)
 end
 
 """
@@ -66,25 +75,25 @@ function generateDataSet()
 
     # For each grid size considered
     for size in [4, 9, 16, 25]
-        N=[size,size]
+        N = [size,size]
         # Generate 10 instances
         for instance in 1:10
-            #Saving the instance to solve and its solution
-            fileName = "../data/instance_n" * string(size) *"_" * string(instance) * ".txt"
-            fileNameSol = "../dataSol/instance_n" * string(size) *"_" * string(instance) * "_sol.txt"
+            # Saving the instance to solve and its solution
+            fileName = "../data/instance_n" * string(size) * "_" * string(instance) * ".txt"
+            fileNameSol = "../dataSol/instance_n" * string(size) * "_" * string(instance) * "_sol.txt"
 
             game = generateInstance(N)
 
             if !isfile(fileName)
-                file = open(fileName,"w")
+                file = open(fileName, "w")
                 println("-- Generating file " * fileName)
                 writeToFile(false, game, file)
                 close(file)
             end
             if !isfile(fileNameSol)
-                fileSol = open(fileNameSol,"w")
+                fileSol = open(fileNameSol, "w")
                 println("-- Generating file " * fileNameSol)
-                writeToFile(true, game,fileSol)
+                writeToFile(true, game, fileSol)
                 close(fileSol)
             end
         end
