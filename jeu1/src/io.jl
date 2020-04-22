@@ -67,7 +67,6 @@ function readInputFile(inputFile::String)
         println("Problem in the input file : wrong number of values")
     end
     C  = createPath(N,X)
-    # println(C)
 
     return UndeadInstance(N, X, Z, G, V, C, Y)
 end
