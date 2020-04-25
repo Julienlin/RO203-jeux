@@ -130,10 +130,12 @@ function solveDataSet()
 
     # For each instance
     # (for each file in folder dataFolder which ends by ".txt")
+    println(filter(x->occursin(".txt", x), readdir(dataFolder)))
     for file in filter(x->occursin(".txt", x), readdir(dataFolder))
 
         println("-- Resolution of ", file)
-        inst = readInputFile(dataFolder * file)
+        println(dataFolder*file)
+        inst = readInputFile(dataFolder*file)
 
         # TODO
         # println("In file resolution.jl, in method solveDataSet(), TODO: read value returned by readInputFile()")

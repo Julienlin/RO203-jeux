@@ -60,8 +60,9 @@ function readInputFile(inputFile::String)
     end
 
     # Parsing number of monsters for each path.
-    Y = map(x->parse(Int64, x), split(data[N[1] + 5 ], ','))
-
+    println(data[N[1]+5])
+    Y=map(x->parse(Int64,x),split(data[N[1] + 5 ], ','))
+    println("Coucou!")
     # Creating the paths of light in the grid
     if size(Y, 1) != 2 * (N[1] + N[2])
         println("Problem in the input file : wrong number of values")
@@ -197,10 +198,10 @@ function writeToFile(isSolution::Bool, inst::UndeadInstance, file::IOStream)
     end
     write(file,"# Valeur des chemins (sens horaire a partir d en haut a gauche)")
     write(file,"\n")
-    for i in 1:size(inst.Y,1)
+    for i in 1:size(inst.Y,1)-1
         write(file,string(inst.Y[i]),",")
     end
-    write(file,"\n")
+    write(file,string(inst.Y[size(inst.Y,1)]),"\n")
 end
 
 """
