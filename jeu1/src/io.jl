@@ -60,20 +60,18 @@ function readInputFile(inputFile::String)
     end
 
     # Parsing number of monsters for each path.
-    println(data[N[1]+5])
-    Y=map(x->parse(Int64,x),split(data[N[1] + 5 ], ','))
-    println("Coucou!")
+    Y = map(x->parse(Int64, x), split(data[N[1] + 5 ], ','))
     # Creating the paths of light in the grid
     if size(Y, 1) != 2 * (N[1] + N[2])
         println("Problem in the input file : wrong number of values")
     end
-    C  = createPath(N,X)
+    C  = createPath(N, X)
 
     return UndeadInstance(N, X, Z, G, V, C, Y)
 end
 
-function createPath(N,X)
-    C = Vector{Vector{Vector{Int64}}}(undef,0)
+function createPath(N, X)
+    C = Vector{Vector{Vector{Int64}}}(undef, 0)
     for i in 1:(2 * (N[1] + N[2])) # For each path in the grid
         c = Vector{Vector{Int64}}(undef, 0)
 
@@ -90,11 +88,11 @@ function createPath(N,X)
             direction = "up"
             x = N[1]
             # y = i - N[1] - N[2]
-            y = 2*N[2]+N[1]+1 - i
+            y = 2 * N[2] + N[1] + 1 - i
         else
             direction = "right"
             # x = i - (2 * N[2])-1
-            x = 2*N[2]+2*N[1]+1 - i
+            x = 2 * N[2] + 2 * N[1] + 1 - i
             y = 1
         end
         mirror = 1 # the visibility equals 1 before mirror, 0 after
@@ -158,50 +156,50 @@ Arguments :
     - ins::UndeadInstance : instance of the game
 """
 function writeToFile(isSolution::Bool, inst::UndeadInstance, file::IOStream)
-    write(file,"# Dimensions de la grille :")
-    write(file,"\n")
-    write(file, string(inst.N[1]),",",string(inst.N[2]))
-    write(file,"\n")
-    write(file,"# Totaux des monstres :")
-    write(file,"\n")
-    write(file, "G=",string(inst.G))
-    write(file,"\n")
-    write(file, "V=",string(inst.V))
-    write(file,"\n")
-    write(file, "Z=",string(inst.Z))
-    write(file,"\n")
-    write(file,"# Grille :")
-    write(file,"\n")
+    write(file, "# Dimensions de la grille :")
+    write(file, "\n")
+    write(file, string(inst.N[1]), ",", string(inst.N[2]))
+    write(file, "\n")
+    write(file, "# Totaux des monstres :")
+    write(file, "\n")
+    write(file, "G=", string(inst.G))
+    write(file, "\n")
+    write(file, "V=", string(inst.V))
+    write(file, "\n")
+    write(file, "Z=", string(inst.Z))
+    write(file, "\n")
+    write(file, "# Grille :")
+    write(file, "\n")
     for i in 1:inst.N[1]
         for j in 1:inst.N[2]
             if inst.X[i,j] == 0
-                write(file,"-")
+                write(file, "-")
             elseif inst.X[i,j] == 4
-                write(file,'/')
+                write(file, '/')
             elseif inst.X[i,j] == 5
-                write(file,'\\')
+                write(file, '\\')
             else
                 if isSolution
                     if inst.X[i,j] == 1
-                        write(file,"G")
+                        write(file, "G")
                     elseif inst.X[i,j] == 2
-                        write(file,"Z")
+                        write(file, "Z")
                     elseif inst.X[i,j] == 3
-                        write(file,"V")
+                        write(file, "V")
                     end
                 else
-                    write(file,"-")
+                    write(file, "-")
                 end
             end
         end
-        write(file,"\n")
+        write(file, "\n")
     end
-    write(file,"# Valeur des chemins (sens horaire a partir d en haut a gauche)")
-    write(file,"\n")
-    for i in 1:size(inst.Y,1)-1
-        write(file,string(inst.Y[i]),",")
+    write(file, "# Valeur des chemins (sens horaire a partir d en haut a gauche)")
+    write(file, "\n")
+    for i in 1:size(inst.Y, 1) - 1
+        write(file, string(inst.Y[i]), ",")
     end
-    write(file,string(inst.Y[size(inst.Y,1)]),"\n")
+    write(file, string(inst.Y[size(inst.Y, 1)]), "\n")
 end
 
 """
@@ -461,6 +459,9 @@ function performanceDiagram(outputFile::String)
 
     # Draw a new plot
             plot(x, y, label = folderName[dim], legend = :bottomright, xaxis = "Time (s)", yaxis = "Solved instances", linewidth = 3)
+            savefig(plot!(x, y, label = folderName[dim], linewidth = 3), outputFile)
+
+            println("coucou")
 
     # Otherwise
         else

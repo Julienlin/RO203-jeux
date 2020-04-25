@@ -91,10 +91,23 @@ end
 """
 Heuristically solve an instance
 """
-function heuristicSolve()
+function heuristicSolve(inst::UndeadInstance)
 
-    # TODO
-    println("In file resolution.jl, in method heuristicSolve(), TODO: fix input and output, define the model")
+    # # TODO
+    # # println("In file resolution.jl, in method heuristicSolve(), TODO: fix input and output, define the model")
+
+    # N = inst.N
+
+    # isFilled = false
+
+    # isStillFeasable = true
+
+    # filled_cells = Vector{Vector{Int64}}
+    # unfilled_cells = sort_cells_by_possibilities( get_unfilled_cells( inst ) )
+
+    # while !isFilled && isStillFeasable
+
+
 
 end
 

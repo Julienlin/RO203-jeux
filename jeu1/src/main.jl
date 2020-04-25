@@ -10,9 +10,10 @@ function main()
     # println(cplexSolve(instance))
     # displaySolution(instance)
     # writeToFile(instance,"test_writing.txt")
-    generateDataSet()
-    solveDataSet()
-
+    # generateDataSet()
+    # solveDataSet()
+    # resultsArray("resultFile.tex")
+    performanceDiagram("performanceDiagram")
 end
 
 main()
