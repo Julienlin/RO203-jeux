@@ -264,7 +264,7 @@ Print in terminal the solution of the problem
 Arguments :
 - instance of the problem
 """
-function displaySolution(instance::UndeadInstance)
+function displaySolution(instance)
     println("###########################################################")
     println("                   Game Undead : Solution")
     println("###########################################################")

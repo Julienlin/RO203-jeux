@@ -110,9 +110,9 @@ function heuristicSolve(inst::UndeadInstance)
 
     isStillFeasable = true
 
-    visited = Vector{String}
+    visited = Vector{String}(undef,0)
 
-    stack = Vector{HeuristicInstance}
+    stack = Vector{HeuristicInstance}(undef,0)
 
     push!(stack, h_inst)
 
@@ -121,11 +121,25 @@ function heuristicSolve(inst::UndeadInstance)
 
     start = time()
 
+    iter =0
     while !isempty(stack)
         cur = head(stack)
-        isStillFeasable = is_valid(cur)
-        isFilled = is_finished(cur)
+        # displaySolution(cur)
+        # println("Node considered : $(cur.str_rep), Z = $(cur.Z)")
+        isStillFeasable = is_valid(cur) #instance est encore faisable
+        # if !isStillFeasable
+        #     displaySolution(cur)
+        #     println("Y = $(cur.Y)")
+        #     println("P = $(cur.P)")
+        #     iter +=1
+        #     if iter >5
+        #         return false, time() -start
+        #     end
+        # end
+        isFilled = is_finished(cur) #instance est noeud terminal
         if isFilled
+            # displaySolution(cur)
+            inst.X = cur.X
             return true, time() - start
         end
         if isStillFeasable
@@ -136,7 +150,7 @@ function heuristicSolve(inst::UndeadInstance)
             # sorting the cur node's children
             unfilled_cells = sort_by_possibilities(cur, get_unfilled_boxes(cur))
 
-            # for each child test all the possibilities
+            # for each child test all the possibilities until found an unvisited child
             for el in unfilled_cells
                 for p in cur.P[el[1],el[2]]
                     new_inst = create_modified(cur, el[1], el[2], p)
@@ -151,9 +165,10 @@ function heuristicSolve(inst::UndeadInstance)
                 end
             end
 
-            if !is_child
+            if !is_child #no child found : leaf
                 push!(visited, cur.str_rep)
                 pop!(stack)
+                # displaySolution(cur)
             end
         else
             push!(visited, cur.str_rep)

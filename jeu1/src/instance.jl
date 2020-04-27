@@ -65,17 +65,28 @@ end
 
 
 
-function get_unfilled_cells(inst::HeuristicInstance)
-    res = Vector{Vector{Int64}}
+function get_unfilled_boxes(inst::HeuristicInstance)
+    res = Vector{Vector{Int64}}(undef,0)
+    N = inst.N
     for i in 1:N[1]
         for j in 1:N[2]
             if inst.X[i,j] == 0
-                append!(res, [i,j,0])
+                push!(res, [i,j,0])
             end
         end
     end
     return res
 end
+
+function is_contained_get_value( path::Vector{Vector{Int64}}, i::Int64, j::Int64 )
+    for el in path
+        if el[1] == i && el[2] == j
+            return (true, el[3])
+        end
+    end
+    return (false, 0)
+end
+
 
 function get_paths_in_stakes(inst, i::Int64, j::Int64)
     paths = Vector{Vector{Int64}}(undef,0)
@@ -83,10 +94,7 @@ function get_paths_in_stakes(inst, i::Int64, j::Int64)
     for k in 1:size(inst.C,1)
         is_contained, value = is_contained_get_value(inst.C[k],i,j)
         if is_contained
-            push!(paths,
-                    [k,
-                     value,
-                     inst.Y[k]])
+            push!(paths,[k, value, inst.Y[k]])
         end
     end
     return paths
@@ -100,30 +108,30 @@ function get_possibilities(inst)
         for j in 1:N[2]
             if inst.X[i,j] == 0
                 paths_in_stakes = get_paths_in_stakes(inst, i, j)
-               
+
                 # fecthing conditions
                 possibility = Vector{Int64}(undef,0)
                 # Testing if we can add a zombie
                 if inst.Z > 0
-                    is_valid = reduce(&,map( x -> x[3]-1 > 0, paths_in_stakes ))
+                    is_valid = reduce(&,map( x -> x[3]-1 >= 0, paths_in_stakes ))
                     if is_valid
-                        append!(possibility, 2)
+                        push!(possibility, 2)
                     end
                 end
 
                 # Testing if we can add a ghost
                 if inst.G > 0
-                    is_valid = reduce(&, map( x -> x[2] != -1 || x[3] - 1 > 0 , paths_in_stakes ))
+                    is_valid = reduce(&, map( x -> x[2] != 0 || x[3] - 1 >= 0 , paths_in_stakes ))
                     if is_valid
-                        append!(possibility, 1)
+                        push!(possibility, 1)
                     end
                 end
 
                 # Testing if we can add a vampire
                 if inst.V > 0
-                    is_valid = reduce(&, map( x -> x[2] != 1 || x[3] - 1 > 0 , paths_in_stakes ))
+                    is_valid = reduce(&, map( x -> x[2] != 1 || x[3] - 1 >= 0 , paths_in_stakes ))
                     if is_valid
-                        append!(possibility, 3)
+                        push!(possibility, 3)
                     end
                 end
 
@@ -131,21 +139,11 @@ function get_possibilities(inst)
 
             else
                 # FIXME: See how to represent when no possibility is required for a box
-                P[i,j] = [typemax(Int64) for a in 1:4]
+                P[i,j] = [4,4,4,4]
             end
         end
     end
-
     return P
-end
-
-function is_contained_get_value( path::Vector{Vector{Int64}}, i::Int64, j::Int64 )
-    for el in path
-        if el[1] == i && el[2] == j
-            return true, el[3]
-        end
-    end
-    return false, 0
 end
 
 
@@ -182,7 +180,7 @@ function create_modified(inst::HeuristicInstance, i::Int64, j::Int64, v::Int64)
 
         # Update Y
         paths_in_stakes = get_paths_in_stakes(inst, i,j)
-       
+
         for el in paths_in_stakes
             if v == 1
                 if el[2] == 0
@@ -198,7 +196,7 @@ function create_modified(inst::HeuristicInstance, i::Int64, j::Int64, v::Int64)
         end
 
         # We create a copy of the HeuristicInstance
-        new_inst = HeuristicInstance(UndeadInstance(N,X,G,Z,V,C,Y))
+        new_inst = HeuristicInstance(UndeadInstance(N,X,Z,G,V,C,Y))
         return new_inst
     end
     return nothing
@@ -211,7 +209,7 @@ function is_valid(inst::HeuristicInstance)
         return false
     end
 
-    # Test whether there is a path on which we see too much monsters
+    # Test whether there is a path on which we see too many monsters
     for i in inst.Y
         if i < 0
             return false
@@ -221,7 +219,7 @@ function is_valid(inst::HeuristicInstance)
     # Test whether there is a box with no possibility and that it is not filled
     for i in 1:inst.N[1]
         for j in 1:inst.N[2]
-            if length(inst.P[i,j]) == 0 && inst.X[i,j] == 0
+            if length(inst.P[i,j]) == 0
                 return false
             end
         end
