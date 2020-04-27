@@ -124,21 +124,9 @@ function heuristicSolve(inst::UndeadInstance)
     iter =0
     while !isempty(stack)
         cur = head(stack)
-        # displaySolution(cur)
-        # println("Node considered : $(cur.str_rep), Z = $(cur.Z)")
         isStillFeasable = is_valid(cur) #instance est encore faisable
-        # if !isStillFeasable
-        #     displaySolution(cur)
-        #     println("Y = $(cur.Y)")
-        #     println("P = $(cur.P)")
-        #     iter +=1
-        #     if iter >5
-        #         return false, time() -start
-        #     end
-        # end
         isFilled = is_finished(cur) #instance est noeud terminal
         if isFilled
-            # displaySolution(cur)
             inst.X = cur.X
             return true, time() - start
         end
@@ -168,7 +156,6 @@ function heuristicSolve(inst::UndeadInstance)
             if !is_child #no child found : leaf
                 push!(visited, cur.str_rep)
                 pop!(stack)
-                # displaySolution(cur)
             end
         else
             push!(visited, cur.str_rep)
