@@ -29,7 +29,16 @@ struct UndeadInstance
     Y::Array{Int64}
 end
 
-
+function UndeadInstance(inst::UndeadInstance)
+    N = copy(inst.N)
+    X = copy(inst.X)
+    Z = inst.Z
+    G = inst.G
+    V = inst.V
+    C = copy(inst.C)
+    Y = copy(inst.Y)
+    return UndeadInstance(N,X,Z,G,V,C,Y)
+end
 
 struct HeuristicInstance
     str_rep::String

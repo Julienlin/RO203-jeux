@@ -179,8 +179,8 @@ function solveDataSet()
     resInstFolder = "../resInst/"
 
     # Array which contains the name of the resolution methods
-    resolutionMethod = ["cplex"]
-    # resolutionMethod = ["cplex", "heuristique"]
+    # resolutionMethod = ["cplex"]
+    resolutionMethod = ["cplex", "heuristique"]
 
     # Array which contains the result folder of each resolution method
     resolutionFolder = resFolder .* resolutionMethod
@@ -203,6 +203,7 @@ function solveDataSet()
         println("-- Resolution of ", file)
         println(dataFolder*file)
         inst = readInputFile(dataFolder*file)
+        inst_heuristic = UndeadInstance(inst)
 
         # TODO
         # println("In file resolution.jl, in method solveDataSet(), TODO: read value returned by readInputFile()")
@@ -245,28 +246,30 @@ function solveDataSet()
 
                     isSolved = false
 
-                    # Start a chronometer
-                    startingTime = time()
+                    # # Start a chronometer
+                    # startingTime = time()
 
-                    # While the grid is not solved and less than 100 seconds are elapsed
-                    while !isOptimal && resolutionTime < 100
+                    # # While the grid is not solved and less than 100 seconds are elapsed
+                    # while !isOptimal && resolutionTime < 100
 
-                        # TODO
-                        println("In file resolution.jl, in method solveDataSet(), TODO: fix heuristicSolve() arguments and returned values")
+                    #     # TODO
+                    #     println("In file resolution.jl, in method solveDataSet(), TODO: fix heuristicSolve() arguments and returned values")
 
-                        # Solve it and get the results
-                        isOptimal, resolutionTime = heuristicSolve()
 
-                        # Stop the chronometer
-                        resolutionTime = time() - startingTime
+                    #     # Stop the chronometer
+                    #     resolutionTime = time() - startingTime
 
-                    end
+                    # end
+                    # Solve it and get the results
+
+                    isOptimal, resolutionTime = heuristicSolve(inst_heuristic)
 
                     # Write the solution (if any)
                     if isOptimal
 
                         # TODO
-                        println("In file resolution.jl, in method solveDataSet(), TODO: write the heuristic solution in fout")
+                        # println("In file resolution.jl, in method solveDataSet(), TODO: write the heuristic solution in fout")
+                        writeToFile(true,inst_heuristic, fInstOut)
 
                     end
                 end
