@@ -88,27 +88,79 @@ function cplexSolve(inst::UndeadInstance)
 
 end
 
+
+function head(A)
+    return A[lastindex(A)]
+end
+
+
 """
 Heuristically solve an instance
 """
 function heuristicSolve(inst::UndeadInstance)
 
-    # # TODO
-    # # println("In file resolution.jl, in method heuristicSolve(), TODO: fix input and output, define the model")
+    # TODO
+    # println("In file resolution.jl, in method heuristicSolve(), TODO: fix input and output, define the model")
 
-    # N = inst.N
+    h_inst = HeuristicInstance(inst)
 
-    # isFilled = false
+    N = h_inst.N
 
-    # isStillFeasable = true
+    isFilled = false
+
+    isStillFeasable = true
+
+    visited = Vector{String}
+
+    stack = Vector{HeuristicInstance}
+
+    push!(stack, h_inst)
 
     # filled_cells = Vector{Vector{Int64}}
-    # unfilled_cells = sort_cells_by_possibilities( get_unfilled_cells( inst ) )
+    # unfilled_cells = sort_cells_by_possibilities( get_unfilled_cells( h_inst ) )
 
-    # while !isFilled && isStillFeasable
+    start = time()
 
+    while !isempty(stack)
+        cur = head(stack)
+        isStillFeasable = is_valid(cur)
+        isFilled = is_finished(cur)
+        if isFilled
+            return true, time() - start
+        end
+        if isStillFeasable
+            is_child = false
 
+            # Looking at the cur node child if there is unvisited node
 
+            # sorting the cur node's children
+            unfilled_cells = sort_by_possibilities(cur, get_unfilled_boxes(cur))
+
+            # for each child test all the possibilities
+            for el in unfilled_cells
+                for p in cur.P[el[1],el[2]]
+                    new_inst = create_modified(cur, el[1], el[2], p)
+                    if !in(new_inst.str_rep, visited)
+                        push!(stack, new_inst)
+                        is_child = true
+                        break
+                    end
+                end
+                if is_child
+                    break
+                end
+            end
+
+            if !is_child
+                push!(visited, cur.str_rep)
+                pop!(stack)
+            end
+        else
+            push!(visited, cur.str_rep)
+            pop!(stack)
+        end
+    end
+    return false, time() - start
 end
 
 """

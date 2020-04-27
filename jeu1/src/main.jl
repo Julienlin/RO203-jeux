@@ -3,7 +3,7 @@ include("resolution.jl")
 include("generation.jl")
 
 function main()
-    # instance::UndeadInstance = readInputFile("ex_instance_simple2.txt")
+    instance::UndeadInstance = readInputFile("ex_instance_simple2.txt")
     # instance::UndeadInstance = readInputFile("ex_instance_full_zombies_one_mirror.txt")
     # instance::UndeadInstance = readInputFile("ex_instance_full_zombies.txt")
     # displayGrid(instance)
@@ -13,7 +13,8 @@ function main()
     # generateDataSet()
     # solveDataSet()
     # resultsArray("resultFile.tex")
-    performanceDiagram("performanceDiagram")
+    # performanceDiagram("performanceDiagram")
+    is_feasable, t = heuristicSolve(instance)
 end
 
 main()
