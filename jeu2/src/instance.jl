@@ -18,3 +18,19 @@ struct GalaxyInstance
     X::Array{Int64,2}
     C::Vector{Vector{Int64}}
 end
+
+struct HeuristicInstance
+    N::Array{Int64}
+    X::Array{Int64,2}
+    C::Vector{Vector{Int64}}
+    # Dans cette matrice, on stocke les coordonnees des cases de la "frontiere" de chaque galaxie, a partir desquelles elle peut etre etendue
+    frontieres::Vector{Vector{Int64}}
+end
+
+function GalaxyToHeuristic(inst::GalaxyInstance,front)
+    N= copy(inst.N)
+    X= copy(inst.X)
+    C= copy(inst.C)
+    F=copy(front)
+    return HeuristicInstance(N,X,C,F)
+end

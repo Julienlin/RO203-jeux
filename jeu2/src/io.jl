@@ -215,13 +215,16 @@ function displayGridSolution(inst::GalaxyInstance)
     println("###########################################################")
     println("")
 
+    N = inst.N
+    X = inst.X
+    C = inst.C
     C_adapte = zeros((2*N[1],2*N[2]))
     for c in inst.C
         C_adapte[c[1],c[2]]=1
     end
 
     #1e ligne de la grille
-    for s in N[2]
+    for s in 1:N[2]
         print(" ---")
     end
     println("")
@@ -235,7 +238,7 @@ function displayGridSolution(inst::GalaxyInstance)
             if C_adapte[2*i-1,2*j-1] == 1.0
                 print("o ")
             else
-                print(X[i,j])
+                print(X[i,j]," ")
             end
             #Affichage du bord droit de la cellule
             if C_adapte[2*i-1,2*j] == 1.0

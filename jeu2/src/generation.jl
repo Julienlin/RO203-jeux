@@ -6,14 +6,23 @@ Generate an n*n grid with a given density
 
 Argument
 - n: size of the grid
-- density: percentage in [0, 1] of initial values in the grid
 """
-function generateInstance(n::Int64, density::Float64)
+function generateInstance(n::Int64)
 
     # TODO
-    println("In file generation.jl, in method generateInstance(), TODO: generate an instance")
-    
-end 
+    # println("In file generation.jl, in method generateInstance(), TODO: generate an instance")
+    N = [n,n]
+    X = zeros(Int64, n,n)
+    C = Vector{Vector{Int64}}(undef, 0)
+
+    while !isFilled(X)
+
+    end
+end
+
+function isFilled(X::Array{Int64,2})
+    return all(map(x -> x != 0, X))
+end
 
 """
 Generate all the instances
@@ -24,7 +33,7 @@ function generateDataSet()
 
     # TODO
     println("In file generation.jl, in method generateDataSet(), TODO: generate an instance")
-    
+
 end
 
 

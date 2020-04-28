@@ -59,7 +59,7 @@ function cplexSolve(inst::UndeadInstance)
     #     end
     # end
 
-    @constraint(m, [c = 1:size(C, 1)], 0 +sum(x[ C[c][el][1], C[c][el][2], 2 ] for el in 1:size(C[c], 1)) # number of zombies on the path
+    @constraint(m, [c = 1:size(C, 1)], 0 + sum(x[ C[c][el][1], C[c][el][2], 2 ] for el in 1:size(C[c], 1)) # number of zombies on the path
                                     + sum(x[ C[c][el][1], C[c][el][2], 3 ] * C[c][el][3] for el in 1:size(C[c], 1)) # number of vampires on the path
                                     + sum(x[C[c][el][1], C[c][el][2], 1] * (1 - C[c][el][3]) for el in 1:size(C[c], 1)) # number of ghosts on the path
                                     == Y[c] )
@@ -71,9 +71,9 @@ function cplexSolve(inst::UndeadInstance)
 
     buf = JuMP.value.(x)
 
-    for i in 1:size(buf,1)
-        for j in 1:size(buf,2)
-            for k in 1:size(buf,3)
+    for i in 1:size(buf, 1)
+        for j in 1:size(buf, 2)
+            for k in 1:size(buf, 3)
                 if buf[i,j,k] == 1
                     inst.X[i,j] = k
                 end
@@ -110,9 +110,9 @@ function heuristicSolve(inst::UndeadInstance)
 
     isStillFeasable = true
 
-    visited = Vector{String}(undef,0)
+    visited = Vector{String}(undef, 0)
 
-    stack = Vector{HeuristicInstance}(undef,0)
+    stack = Vector{HeuristicInstance}(undef, 0)
 
     push!(stack, h_inst)
 
@@ -121,11 +121,10 @@ function heuristicSolve(inst::UndeadInstance)
 
     start = time()
 
-    iter =0
     while !isempty(stack)
         cur = head(stack)
-        isStillFeasable = is_valid(cur) #instance est encore faisable
-        isFilled = is_finished(cur) #instance est noeud terminal
+        isStillFeasable = is_valid(cur) # instance est encore faisable
+        isFilled = is_finished(cur) # instance est noeud terminal
         if isFilled
             inst.X = cur.X
             return true, time() - start
@@ -153,7 +152,7 @@ function heuristicSolve(inst::UndeadInstance)
                 end
             end
 
-            if !is_child #no child found : leaf
+            if !is_child # no child found : leaf
                 push!(visited, cur.str_rep)
                 pop!(stack)
             end
@@ -201,8 +200,8 @@ function solveDataSet()
     for file in filter(x->occursin(".txt", x), readdir(dataFolder))
 
         println("-- Resolution of ", file)
-        println(dataFolder*file)
-        inst = readInputFile(dataFolder*file)
+        println(dataFolder * file)
+        inst = readInputFile(dataFolder * file)
         inst_heuristic = UndeadInstance(inst)
 
         # TODO
@@ -212,16 +211,16 @@ function solveDataSet()
         for methodId in 1:size(resolutionMethod, 1)
 
             outputFile = resolutionFolder[methodId] * "/" * file
-            outputInstFile = resInstFolder*file
+            outputInstFile = resInstFolder * file
 
             # If the instance has not already been solved by this method
             if !isfile(outputFile)
 
                 fout = open(outputFile, "w")
-                fInstOut = open(outputInstFile,"w")
+                fInstOut = open(outputInstFile, "w")
 
-                 resolutionTime = -1
-                 isOptimal = false
+                resolutionTime = -1
+                isOptimal = false
 
                 # If the method is cplex
                 if resolutionMethod[methodId] == "cplex"
@@ -236,7 +235,7 @@ function solveDataSet()
                     if isOptimal
                         # TODO
                         # println("In file resolution.jl, in method solveDataSet(), TODO: write cplex solution in fout")
-                        writeToFile(true,inst, fInstOut)
+                        writeToFile(true, inst, fInstOut)
                         # println(fout, "isOptimal = $isOptimal")
                         # println(fout,"resolutionTime = $resolutionTime")
                     end
@@ -269,7 +268,7 @@ function solveDataSet()
 
                         # TODO
                         # println("In file resolution.jl, in method solveDataSet(), TODO: write the heuristic solution in fout")
-                        writeToFile(true,inst_heuristic, fInstOut)
+                        writeToFile(true, inst_heuristic, fInstOut)
 
                     end
                 end

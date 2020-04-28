@@ -2,6 +2,7 @@
 using CPLEX
 
 include("generation.jl")
+include("instance.jl")
 
 TOL = 0.00001
 
@@ -40,14 +41,17 @@ function cplexSolve(inst::GalaxyInstance)
 
     @variable(m, x[ 1:N[1], 1:N[2], 1:nb_galaxies], Bin)
 
+    # constraint about symetry of each galaxy for the first dimension
+    @constraint(m, [ g = 1:nb_galaxies ], sum((2 * i - 1 - C[g][1]) * x[i,j,g] for i in 1:N[1], j in 1:N[2]) == 0 )
+
+    # constraint about symetry of each galaxy for the second dimension
+    @constraint(m, [ g = 1:nb_galaxies], sum((2 * j - 1 - C[g][2]) * x[i,j,g] for j in 1:N[2], i in 1:N[1]) == 0 )
+
+
     # constraint about unicity of ownerhip for each box and that every box is owned
     @constraint(m, [ i = 1:N[1], j =  1:N[2] ], sum(x[i,j,g] for g in 1:nb_galaxies) == 1 )
 
-    # constraint about symetry of each galaxy for the first dimension
-    @constraint(m, [ g = 1:nb_galaxies ], sum((2 * i - 1 - C[g][1]) * x[i,j,g] for i in 1:N[1] for j in 1:N[2]) == 0 )
 
-    # constraint about symetry of each galaxy for the second dimension
-    @constraint(m, [ g = 1:nb_galaxies], sum((2 * j - 1 - C[g][2]) * x[i,j,g] for j in 1:N[2] for i in 1:N[1]) == 0 )
 
     #  constraint for connexity
     for g in 1:nb_galaxies
@@ -59,7 +63,7 @@ function cplexSolve(inst::GalaxyInstance)
                     neighbours = get_neighbours(N, i, j)
 
                     # add constraint
-                    @constraint(m, sum(x[ k, l , g] for (k, l) in neighbours) >= 1)
+                    @constraint(m, sum(x[ k, l , g] for (k, l) in neighbours)  >=  x[i,j,g])
                 end
             end
         end
@@ -88,14 +92,13 @@ function cplexSolve(inst::GalaxyInstance)
     # @constraint(m, [ g in 1:nb_galaxies, i in 1:N[1], j in 1:N[2];  ], x[ i, j , g ] == 1 )
 
 
-    # @objective(m, Min, )
+    @objective(m, Min, 1)
 
     # Start a chronometer
     start = time()
 
     # Solve the model
     optimize!(m)
-
 
     buf = JuMP.value.(x)
 
@@ -119,15 +122,172 @@ function cplexSolve(inst::GalaxyInstance)
 
 end
 
+function head(A)
+    return A[lastindex(A)]
+end
+
 """
 Heuristically solve an instance
 """
-function heuristicSolve()
+function heuristicSolve(inst::GalaxyInstance)
 
-    # TODO
-    println("In file resolution.jl, in method heuristicSolve(), TODO: fix input and output, define the model")
+    start = time()
 
+    C = inst.C
+    X = inst.X
+    N = inst.N
+
+    # Pile des differents noeuds de l'arbre de resolution
+    stack = Vector{HeuristicInstance}(undef, 0)
+
+    #D'abord on contruit l'instance heuristique de l'instance a resoudre.
+    #On initialise les frontieres aux cases "touchees" directement par les noyaux des galaxies
+
+    # Dans cette matrice, on stocke les coordonnees des cases de la "frontiere" de chaque galaxie, a partir desquelles elle peut etre etendue
+    frontieres = Vector{Vector{Int64}}(undef, 0)
+
+    for i in 1:size(C,1)
+        #Si le noyau est dans une case
+        c = C[i]
+        if rem(c[1],2)==1 && rem(c[2],2)==1
+            x =div(c[1],2)+1
+            y = div(c[2],2)+1
+            X[x,y] = i
+            push!(frontieres,[x,y])
+
+        #Si le noyau est a cheval sur quatre cases
+        elseif rem(c[1],2)==0 && rem(c[2],2)==0
+            X[div(c[1]-1,2)+1 , div(c[2]-1,2)+1] = i
+            X[div(c[1]-1,2)+1 , div(c[2]+1,2)+1] = i
+            X[div(c[1]+1,2)+1 , div(c[2]-1,2)+1] = i
+            X[div(c[1]+1,2)+1 , div(c[2]+1,2)+1] = i
+            push!(frontieres, [div(c[1]-1,2)+1,div(c[2]-1,2)+1] , [div(c[1]+1,2)+1,div(c[2]-1,2)+1] , [div(c[1]-1,2)+1,div(c[2]+1,2)+1] , [div(c[1]+1,2)+1,div(c[2]+1,2)+1] )
+
+       #Si le noyau est a cheval entre deux cases, sur une ligne horizontale
+        elseif rem(c[1],2)==0 && rem(c[2],2)==1
+            X[div(c[1]+1,2)+1 , div(c[2],2)+1 ] = i
+            X[div(c[1]-1,2)+1 , div(c[2],2)+1 ] = i
+            push!(frontieres, [div(c[1]+1,2)+1,div(c[2],2)+1] , [div(c[1]-1,2)+1,div(c[2],2)+1] )
+
+        #Si le noyau est a cheval entre deux cases, sur une ligne verticale
+        elseif rem(c[1],2)==1 && rem(c[2],2)==0
+            X[div(c[1],2)+1 , div(c[2]+1,2)+1] = i
+            X[div(c[1],2)+1 , div(c[2]-1,2)+1] = i
+            push!(frontieres,  [div(c[1],2)+1,div(c[2]-1,2)+1 ] , [div(c[1],2)+1,div(c[2]+1,2)+1] )
+        end
+    end
+
+    push!(stack, GalaxyToHeuristic(inst,frontieres))
+
+    while !isempty(stack)
+        inst = head(stack)
+        isFull = isFilled(inst)
+        if isFull
+            displaySolution(GalaxyInstance(inst.N,inst.X,inst.C))
+            return true, time()-start
+        end
+        F = inst.frontieres
+        isChild = false
+        while !isChild #Tant qu'on n'a pas trouve d'enfant
+
+            #On choisit la case de frontiere que l'on veut etendre
+            j=1
+            n = size(F,1)
+            isCell = false
+            #On cherche une cellule ayant un voisin encore non attribue
+            while !isCell && j<=n
+                #Si la cellule n'a pas de voisin libre, on ne peut pas etendre de galaxie a partir d'elle, donc elle ne doit plus faire partie de la frontiere
+                V = freeNeighbors(F[j],inst.X,inst.N)
+                if isempty(V)
+                    deleteat!(F, j)
+                    j += 1
+                else
+                    isCell = true
+                end
+            end
+            if j>n
+                println("Error : Grid filled !!!")
+                return false, time()-start
+            end
+            cell = F[j]
+            V = freeNeighbors(cell,inst.X,inst.N)
+
+            #Parmi les voisins, on en cherche un dont le symetrique par rapport au centre de la galxie est aussi libre (et dans la grille)
+            v = 1
+            n = size(V,1)
+            while !isChild && v<=n
+
+                #Calcul des coordonnees de la cellule symetrique
+                new_cell = V[v]
+                sym_cell = [0,0]
+                g = inst.C[X[cell[1],cell[2]]]
+                sym_cell[1] = new_cell[1] + div( 2*new_cell[1]-1 -g[1], 2) +1
+                sym_cell[2] = new_cell[2] + div( 2*new_cell[2]-1 -g[2], 2) +1
+
+                #Si la cellule est valide, on etend la galaxie a cette cellule et son symetrique et on cree une nouvelle instance
+                if sym_cell[1]>0 && sym_cell[1]<= N[1] && sym_cell[2]>0 && sym_cell[2]<= N[2] && X[sym_cell[1],sym_cell[2]] == 0
+                    isChild = true
+                    X[new_cell[1],new_cell[2]] = X[cell[1],cell[2]]
+                    X[sym_cell[1],sym_cell[2]] = X[cell[1],cell[2]]
+                    push!(F,new_cell)
+                    push!(F,sym_cell)
+                    push!(stack,GalaxyToHeuristic(GalaxyInstance(inst.N,inst.X,inst.C),F))
+                else
+                    v += 1
+                end
+            end
+
+            if v == n+1 #Dans ce cas, aucun voisin de la cellule consideree est valide, donc on ne peut pas etendre la galaxie a partir de cell
+                deleteat!(F, j)
+            end
+        end
+
+    end
+
+    return false, time()-start
 end
+
+"""
+Check if all the cells of the grid are assigned a galaxy
+"""
+function isFilled(inst::HeuristicInstance)
+    X = inst.X
+    N = inst.N
+    G = size(inst.C ,1)
+
+    for i in 1:N[1]
+        for j in 1:N[2]
+            if X[i,j]==0
+                return false
+            end
+        end
+    end
+
+    return true
+end
+
+"""
+Return the coordinates of the free neighbors (assigned 0) of the cell (i,j)
+"""
+function freeNeighbors(I,X, N)
+    V = Vector{Vector{Int64}}(undef,0)
+    i = I[1]
+    j = I[2]
+    if i-1>0 && X[i-1,j]==0
+        push!(V,[i-1,j])
+    end
+    if i+1<=N[1] && X[i+1,j] ==0
+        push!(V,[i+1,j])
+    end
+    if j-1>0 && X[i,j-1]==0
+        push!(V,[i,j-1])
+    end
+    if j+1<=N[1] && X[i,j+1] ==0
+        push!(V,[i,j+1])
+    end
+return V
+end
+
 
 """
 Solve all the instances contained in "../data" through CPLEX and heuristics
