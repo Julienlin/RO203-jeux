@@ -31,3 +31,7 @@ Manifest.toml
 
 sudoku1.0/*
 trello.org
+jeu1/data/*
+jeu1/res/cplex/*
+jeu1/dataSol/*
+jeu1/resInst/*
