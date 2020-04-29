@@ -84,8 +84,8 @@ function generateDataSet()
         for num in 1:10
             inst = generateInstance(n1,n2)
             inst_filename = path_to_dir * generic_filename * "n_" * string(num) * " .txt"
-            if !isfile(inst_filename
-                println("-- Generating file " * inst_filename))
+            if !isfile(inst_filename)
+                println("-- Generating file " * inst_filename)
                 f_stream = open(inst_filename, "w")
                 writeToFile(false, inst, f_stream)
                 close(f_stream)
