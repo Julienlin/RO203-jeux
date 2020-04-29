@@ -3,6 +3,7 @@ using CPLEX
 
 include("generation.jl")
 include("instance.jl")
+include("io.jl")
 
 TOL = 0.00001
 
@@ -180,39 +181,44 @@ function heuristicSolve(inst::GalaxyInstance)
     push!(stack, GalaxyToHeuristic(inst,frontieres))
 
     while !isempty(stack)
-        inst = head(stack)
-        isFull = isFilled(inst)
+        cur = head(stack)
+        isFull = isFilled(cur)
         if isFull
-            displaySolution(GalaxyInstance(inst.N,inst.X,inst.C))
+            # displayGridSolution(GalaxyInstance(cur.N,cur.X,cur.C))
+            for i in 1:cur.N[1]
+                for j in 1:cur.N[2]
+                    inst.X[i,j] = cur.X[i,j]
+                end
+            end
             return true, time()-start
         end
-        F = inst.frontieres
+        F = cur.frontieres
         isChild = false
         while !isChild #Tant qu'on n'a pas trouve d'enfant
 
             #On choisit la case de frontiere que l'on veut etendre
-            j=1
             n = size(F,1)
+            j=n
             isCell = false
             #On cherche une cellule ayant un voisin encore non attribue
-            while !isCell && j<=n
+            while !isCell && j>0
                 #Si la cellule n'a pas de voisin libre, on ne peut pas etendre de galaxie a partir d'elle, donc elle ne doit plus faire partie de la frontiere
-                V = freeNeighbors(F[j],inst.X,inst.N)
+                V = freeNeighbors(F[j],cur.X,cur.N)
                 if isempty(V)
                     deleteat!(F, j)
-                    j += 1
+                    j -= 1
                 else
                     isCell = true
                 end
             end
-            if j>n
+            if j==0
                 println("Error : Grid filled !!!")
                 return false, time()-start
             end
             cell = F[j]
-            V = freeNeighbors(cell,inst.X,inst.N)
+            V = freeNeighbors(cell,cur.X,cur.N)
 
-            #Parmi les voisins, on en cherche un dont le symetrique par rapport au centre de la galxie est aussi libre (et dans la grille)
+            #Parmi les voisins, on en cherche un dont le symetrique par rapport au centre de la galaxie est aussi libre (et dans la grille)
             v = 1
             n = size(V,1)
             while !isChild && v<=n
@@ -220,18 +226,22 @@ function heuristicSolve(inst::GalaxyInstance)
                 #Calcul des coordonnees de la cellule symetrique
                 new_cell = V[v]
                 sym_cell = [0,0]
-                g = inst.C[X[cell[1],cell[2]]]
-                sym_cell[1] = new_cell[1] + div( 2*new_cell[1]-1 -g[1], 2) +1
-                sym_cell[2] = new_cell[2] + div( 2*new_cell[2]-1 -g[2], 2) +1
+                if cur.X[cell[1],cell[2]] == 0
+                    println("$(X[cell[1],cell[2]]) , $(cell[1]), $(cell[2])")
+                    displayGridSolution(cur)
+                end
+                g = cur.C[cur.X[cell[1],cell[2]]]
+                sym_cell[1] = div( 2 * g[1]+1 -  2*new_cell[1]-1 , 2) +1
+                sym_cell[2] = div( 2 * g[2]+1 -  2*new_cell[2]-1 , 2) +1
 
                 #Si la cellule est valide, on etend la galaxie a cette cellule et son symetrique et on cree une nouvelle instance
                 if sym_cell[1]>0 && sym_cell[1]<= N[1] && sym_cell[2]>0 && sym_cell[2]<= N[2] && X[sym_cell[1],sym_cell[2]] == 0
                     isChild = true
-                    X[new_cell[1],new_cell[2]] = X[cell[1],cell[2]]
-                    X[sym_cell[1],sym_cell[2]] = X[cell[1],cell[2]]
+                    cur.X[new_cell[1],new_cell[2]] = cur.X[cell[1],cell[2]]
+                    cur.X[sym_cell[1],sym_cell[2]] = cur.X[cell[1],cell[2]]
                     push!(F,new_cell)
                     push!(F,sym_cell)
-                    push!(stack,GalaxyToHeuristic(GalaxyInstance(inst.N,inst.X,inst.C),F))
+                    push!(stack,GalaxyToHeuristic(GalaxyInstance(cur.N,cur.X,cur.C),F))
                 else
                     v += 1
                 end
@@ -253,7 +263,6 @@ Check if all the cells of the grid are assigned a galaxy
 function isFilled(inst::HeuristicInstance)
     X = inst.X
     N = inst.N
-    G = size(inst.C ,1)
 
     for i in 1:N[1]
         for j in 1:N[2]

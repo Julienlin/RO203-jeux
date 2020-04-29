@@ -208,7 +208,7 @@ Displays a solved instance
 - Argument:
 inst::GalaxyInstance : instance a ecrire
 """
-function displayGridSolution(inst::GalaxyInstance)
+function displayGridSolution(inst)
 
     println("###########################################################")
     println("                Game Galaxies : Solution")

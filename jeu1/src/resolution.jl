@@ -179,7 +179,8 @@ function solveDataSet()
 
     # Array which contains the name of the resolution methods
     # resolutionMethod = ["cplex"]
-    resolutionMethod = ["cplex", "heuristique"]
+    resolutionMethod = ["heuristique"]
+    # resolutionMethod = ["cplex", "heuristique"]
 
     # Array which contains the result folder of each resolution method
     resolutionFolder = resFolder .* resolutionMethod
@@ -196,7 +197,7 @@ function solveDataSet()
 
     # For each instance
     # (for each file in folder dataFolder which ends by ".txt")
-    println(filter(x->occursin(".txt", x), readdir(dataFolder)))
+    # println(filter(x->occursin(".txt", x), readdir(dataFolder)))
     for file in filter(x->occursin(".txt", x), readdir(dataFolder))
 
         println("-- Resolution of ", file)
@@ -277,7 +278,7 @@ function solveDataSet()
                 println(fout, "isOptimal = ", isOptimal)
 
                 # TODO
-                println("In file resolution.jl, in method solveDataSet(), TODO: write the solution in fout")
+                # println("In file resolution.jl, in method solveDataSet(), TODO: write the solution in fout")
                 close(fout)
                 close(fInstOut)
 
