@@ -82,19 +82,19 @@ function generateDataSet()
             fileName = "../data/instance_n" * string(size) * "_" * string(instance) * ".txt"
             fileNameSol = "../dataSol/instance_n" * string(size) * "_" * string(instance) * "_sol.txt"
 
-            game = generateInstance(N)
-
             if !isfile(fileName)
+                game = generateInstance(N)
                 file = open(fileName, "w")
                 println("-- Generating file " * fileName)
                 writeToFile(false, game, file)
                 close(file)
-            end
-            if !isfile(fileNameSol)
-                fileSol = open(fileNameSol, "w")
-                println("-- Generating file " * fileNameSol)
-                writeToFile(true, game, fileSol)
-                close(fileSol)
+
+                if !isfile(fileNameSol)
+                    fileSol = open(fileNameSol, "w")
+                    println("-- Generating file " * fileNameSol)
+                    writeToFile(true, game, fileSol)
+                    close(fileSol)
+                end
             end
         end
 
