@@ -121,12 +121,18 @@ function heuristicSolve(inst::UndeadInstance)
 
     start = time()
 
-    while !isempty(stack)
+    while !isempty(stack) && time()- start < 100
         cur = head(stack)
+        displaySolution(cur)
         isStillFeasable = is_valid(cur) # instance est encore faisable
         isFilled = is_finished(cur) # instance est noeud terminal
         if isFilled
-            inst.X = cur.X
+            for line in 1:size(inst.X,1)
+                for row in 1:size(inst.X, 2)
+                    inst.X[line, row] = cur.X[line,row]
+                end
+            end
+           
             return true, time() - start
         end
         if isStillFeasable

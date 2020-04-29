@@ -120,14 +120,6 @@ function get_possibilities(inst)
 
                 # fecthing conditions
                 possibility = Vector{Int64}(undef,0)
-                # Testing if we can add a zombie
-                if inst.Z > 0
-                    is_valid = reduce(&,map( x -> x[3]-1 >= 0, paths_in_stakes ))
-                    if is_valid
-                        push!(possibility, 2)
-                    end
-                end
-
                 # Testing if we can add a ghost
                 if inst.G > 0
                     is_valid = reduce(&, map( x -> x[2] != 0 || x[3] - 1 >= 0 , paths_in_stakes ))
@@ -141,6 +133,14 @@ function get_possibilities(inst)
                     is_valid = reduce(&, map( x -> x[2] != 1 || x[3] - 1 >= 0 , paths_in_stakes ))
                     if is_valid
                         push!(possibility, 3)
+                    end
+                end
+
+                # Testing if we can add a zombie
+                if inst.Z > 0
+                    is_valid = reduce(&,map( x -> x[3]-1 >= 0, paths_in_stakes ))
+                    if is_valid
+                        push!(possibility, 2)
                     end
                 end
 
@@ -161,8 +161,23 @@ end
 Funtion that sort the vector of cells by the ascending number of possibilities.
 """
 function sort_by_possibilities(inst::HeuristicInstance, cells::Vector{Vector{Int64}})
-    return sort(cells, by=x -> length(inst.P[x[1],x[2]]) *
-                (1 - length(get_paths_in_stakes(inst,x[1],x[2]))/length(inst.Y) ))
+    return sort(cells, by=x ->
+                length(get_paths_in_stakes(inst,x[1],x[2])))
+
+    # return sort(cells, by=x -> length(inst.P[x[1],x[2]]) *
+    #             (1 - length(get_paths_in_stakes(inst,x[1],x[2]))/length(inst.Y) ))
+end
+
+function sort_by_entropy(inst, cells::Vector{Vector{Int64}})
+    return sort(cells, by= x-> entropy(inst, x))
+end
+
+function entropy(inst, x::Vector{Int64})
+    probZ = inst.Z / prod(inst.N)
+    probG = inst.G / prod(inst.N)
+    probV = inst.V / prod(inst.N)
+    res = probZ + probG + probV
+   
 end
 
 
