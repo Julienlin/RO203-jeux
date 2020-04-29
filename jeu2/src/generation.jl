@@ -82,9 +82,9 @@ function generateDataSet()
 
     for (n1,n2) in [(4,4), (16,16), (25,25), (5,13), (9, 10)]
         for num in 1:10
-            inst = generateInstance(n1,n2)
             inst_filename = path_to_dir * generic_filename * "n_" * string(num) * " .txt"
             if !isfile(inst_filename)
+                inst = generateInstance(n1,n2)
                 println("-- Generating file " * inst_filename)
                 f_stream = open(inst_filename, "w")
                 writeToFile(false, inst, f_stream)
