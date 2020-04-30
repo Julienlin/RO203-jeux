@@ -140,44 +140,44 @@ function heuristicSolve(inst::GalaxyInstance)
     # Pile des differents noeuds de l'arbre de resolution
     stack = Vector{HeuristicInstance}(undef, 0)
 
-    #D'abord on contruit l'instance heuristique de l'instance a resoudre.
-    #On initialise les frontieres aux cases "touchees" directement par les noyaux des galaxies
+    # D'abord on contruit l'instance heuristique de l'instance a resoudre.
+    # On initialise les frontieres aux cases "touchees" directement par les noyaux des galaxies
 
     # Dans cette matrice, on stocke les coordonnees des cases de la "frontiere" de chaque galaxie, a partir desquelles elle peut etre etendue
     frontieres = Vector{Vector{Int64}}(undef, 0)
 
-    for i in 1:size(C,1)
-        #Si le noyau est dans une case
+    for i in 1:size(C, 1)
+        # Si le noyau est dans une case
         c = C[i]
-        if rem(c[1],2)==1 && rem(c[2],2)==1
-            x =div(c[1],2)+1
-            y = div(c[2],2)+1
+        if rem(c[1], 2) == 1 && rem(c[2], 2) == 1
+            x = div(c[1], 2) + 1
+            y = div(c[2], 2) + 1
             X[x,y] = i
-            push!(frontieres,[x,y])
+            push!(frontieres, [x,y])
 
-        #Si le noyau est a cheval sur quatre cases
-        elseif rem(c[1],2)==0 && rem(c[2],2)==0
-            X[div(c[1]-1,2)+1 , div(c[2]-1,2)+1] = i
-            X[div(c[1]-1,2)+1 , div(c[2]+1,2)+1] = i
-            X[div(c[1]+1,2)+1 , div(c[2]-1,2)+1] = i
-            X[div(c[1]+1,2)+1 , div(c[2]+1,2)+1] = i
-            push!(frontieres, [div(c[1]-1,2)+1,div(c[2]-1,2)+1] , [div(c[1]+1,2)+1,div(c[2]-1,2)+1] , [div(c[1]-1,2)+1,div(c[2]+1,2)+1] , [div(c[1]+1,2)+1,div(c[2]+1,2)+1] )
+        # Si le noyau est a cheval sur quatre cases
+        elseif rem(c[1], 2) == 0 && rem(c[2], 2) == 0
+            X[div(c[1] - 1, 2) + 1 , div(c[2] - 1, 2) + 1] = i
+            X[div(c[1] - 1, 2) + 1 , div(c[2] + 1, 2) + 1] = i
+            X[div(c[1] + 1, 2) + 1 , div(c[2] - 1, 2) + 1] = i
+            X[div(c[1] + 1, 2) + 1 , div(c[2] + 1, 2) + 1] = i
+            push!(frontieres, [div(c[1] - 1, 2) + 1,div(c[2] - 1, 2) + 1], [div(c[1] + 1, 2) + 1,div(c[2] - 1, 2) + 1], [div(c[1] - 1, 2) + 1,div(c[2] + 1, 2) + 1], [div(c[1] + 1, 2) + 1,div(c[2] + 1, 2) + 1])
 
-       #Si le noyau est a cheval entre deux cases, sur une ligne horizontale
-        elseif rem(c[1],2)==0 && rem(c[2],2)==1
-            X[div(c[1]+1,2)+1 , div(c[2],2)+1 ] = i
-            X[div(c[1]-1,2)+1 , div(c[2],2)+1 ] = i
-            push!(frontieres, [div(c[1]+1,2)+1,div(c[2],2)+1] , [div(c[1]-1,2)+1,div(c[2],2)+1] )
+       # Si le noyau est a cheval entre deux cases, sur une ligne horizontale
+        elseif rem(c[1], 2) == 0 && rem(c[2], 2) == 1
+            X[div(c[1] + 1, 2) + 1 , div(c[2], 2) + 1 ] = i
+            X[div(c[1] - 1, 2) + 1 , div(c[2], 2) + 1 ] = i
+            push!(frontieres, [div(c[1] + 1, 2) + 1,div(c[2], 2) + 1], [div(c[1] - 1, 2) + 1,div(c[2], 2) + 1])
 
-        #Si le noyau est a cheval entre deux cases, sur une ligne verticale
-        elseif rem(c[1],2)==1 && rem(c[2],2)==0
-            X[div(c[1],2)+1 , div(c[2]+1,2)+1] = i
-            X[div(c[1],2)+1 , div(c[2]-1,2)+1] = i
-            push!(frontieres,  [div(c[1],2)+1,div(c[2]-1,2)+1 ] , [div(c[1],2)+1,div(c[2]+1,2)+1] )
+        # Si le noyau est a cheval entre deux cases, sur une ligne verticale
+        elseif rem(c[1], 2) == 1 && rem(c[2], 2) == 0
+            X[div(c[1], 2) + 1 , div(c[2] + 1, 2) + 1] = i
+            X[div(c[1], 2) + 1 , div(c[2] - 1, 2) + 1] = i
+            push!(frontieres,  [div(c[1], 2) + 1,div(c[2] - 1, 2) + 1 ], [div(c[1], 2) + 1,div(c[2] + 1, 2) + 1])
         end
     end
 
-    push!(stack, GalaxyToHeuristic(inst,frontieres))
+    push!(stack, GalaxyToHeuristic(inst, frontieres))
 
     start = time()
 
@@ -191,20 +191,20 @@ function heuristicSolve(inst::GalaxyInstance)
                     inst.X[i,j] = cur.X[i,j]
                 end
             end
-            return true, time()-start
+            return true, time() - start
         end
         F = cur.frontieres
         isChild = false
-        while !isChild #Tant qu'on n'a pas trouve d'enfant
+        while !isChild # Tant qu'on n'a pas trouve d'enfant
 
-            #On choisit la case de frontiere que l'on veut etendre
-            n = size(F,1)
-            j=n
+            # On choisit la case de frontiere que l'on veut etendre
+            n = size(F, 1)
+            j = n
             isCell = false
-            #On cherche une cellule ayant un voisin encore non attribue
-            while !isCell && j>0
-                #Si la cellule n'a pas de voisin libre, on ne peut pas etendre de galaxie a partir d'elle, donc elle ne doit plus faire partie de la frontiere
-                V = freeNeighbors(F[j],cur.X,cur.N)
+            # On cherche une cellule ayant un voisin encore non attribue
+            while !isCell && j > 0
+                # Si la cellule n'a pas de voisin libre, on ne peut pas etendre de galaxie a partir d'elle, donc elle ne doit plus faire partie de la frontiere
+                V = freeNeighbors(F[j], cur.X, cur.N)
                 if isempty(V)
                     deleteat!(F, j)
                     j -= 1
@@ -212,19 +212,19 @@ function heuristicSolve(inst::GalaxyInstance)
                     isCell = true
                 end
             end
-            if j==0
+            if j == 0
                 println("Error : Grid filled !!!")
-                return false, time()-start
+                return false, time() - start
             end
             cell = F[j]
-            V = freeNeighbors(cell,cur.X,cur.N)
+            V = freeNeighbors(cell, cur.X, cur.N)
 
-            #Parmi les voisins, on en cherche un dont le symetrique par rapport au centre de la galaxie est aussi libre (et dans la grille)
+            # Parmi les voisins, on en cherche un dont le symetrique par rapport au centre de la galaxie est aussi libre (et dans la grille)
             v = 1
-            n = size(V,1)
-            while !isChild && v<=n
+            n = size(V, 1)
+            while !isChild && v <= n
 
-                #Calcul des coordonnees de la cellule symetrique
+                # Calcul des coordonnees de la cellule symetrique
                 new_cell = V[v]
                 sym_cell = [0,0]
                 if cur.X[cell[1],cell[2]] == 0
@@ -232,30 +232,30 @@ function heuristicSolve(inst::GalaxyInstance)
                     displayGridSolution(cur)
                 end
                 g = cur.C[cur.X[cell[1],cell[2]]]
-                sym_cell[1] = div( 2 * g[1]+1 -  2*new_cell[1]-1 , 2) +1
-                sym_cell[2] = div( 2 * g[2]+1 -  2*new_cell[2]-1 , 2) +1
+                sym_cell[1] = div(2 * g[1] + 1 -  2 * new_cell[1] - 1, 2) + 1
+                sym_cell[2] = div(2 * g[2] + 1 -  2 * new_cell[2] - 1, 2) + 1
 
-                #Si la cellule est valide, on etend la galaxie a cette cellule et son symetrique et on cree une nouvelle instance
-                if sym_cell[1]>0 && sym_cell[1]<= N[1] && sym_cell[2]>0 && sym_cell[2]<= N[2] && X[sym_cell[1],sym_cell[2]] == 0
+                # Si la cellule est valide, on etend la galaxie a cette cellule et son symetrique et on cree une nouvelle instance
+                if sym_cell[1] > 0 && sym_cell[1] <= N[1] && sym_cell[2] > 0 && sym_cell[2] <= N[2] && X[sym_cell[1],sym_cell[2]] == 0
                     isChild = true
                     cur.X[new_cell[1],new_cell[2]] = cur.X[cell[1],cell[2]]
                     cur.X[sym_cell[1],sym_cell[2]] = cur.X[cell[1],cell[2]]
-                    push!(F,new_cell)
-                    push!(F,sym_cell)
-                    push!(stack,GalaxyToHeuristic(GalaxyInstance(cur.N,cur.X,cur.C),F))
+                    push!(F, new_cell)
+                    push!(F, sym_cell)
+                    push!(stack, GalaxyToHeuristic(GalaxyInstance(cur.N, cur.X, cur.C), F))
                 else
                     v += 1
                 end
             end
 
-            if v == n+1 #Dans ce cas, aucun voisin de la cellule consideree est valide, donc on ne peut pas etendre la galaxie a partir de cell
+            if v == n + 1 # Dans ce cas, aucun voisin de la cellule consideree est valide, donc on ne peut pas etendre la galaxie a partir de cell
                 deleteat!(F, j)
             end
         end
 
     end
 
-    return false, time()-start
+    return false, time() - start
 end
 
 """
@@ -267,7 +267,7 @@ function isFilled(inst::HeuristicInstance)
 
     for i in 1:N[1]
         for j in 1:N[2]
-            if X[i,j]==0
+            if X[i,j] == 0
                 return false
             end
         end
@@ -279,23 +279,23 @@ end
 """
 Return the coordinates of the free neighbors (assigned 0) of the cell (i,j)
 """
-function freeNeighbors(I,X, N)
-    V = Vector{Vector{Int64}}(undef,0)
+function freeNeighbors(I, X, N)
+    V = Vector{Vector{Int64}}(undef, 0)
     i = I[1]
     j = I[2]
-    if i-1>0 && X[i-1,j]==0
-        push!(V,[i-1,j])
+    if i - 1 > 0 && X[i - 1,j] == 0
+        push!(V, [i - 1,j])
     end
-    if i+1<=N[1] && X[i+1,j] ==0
-        push!(V,[i+1,j])
+    if i + 1 <= N[1] && X[i + 1,j] == 0
+        push!(V, [i + 1,j])
     end
-    if j-1>0 && X[i,j-1]==0
-        push!(V,[i,j-1])
+    if j - 1 > 0 && X[i,j - 1] == 0
+        push!(V, [i,j - 1])
     end
-    if j+1<=N[1] && X[i,j+1] ==0
-        push!(V,[i,j+1])
+    if j + 1 <= N[1] && X[i,j + 1] == 0
+        push!(V, [i,j + 1])
     end
-return V
+    return V
 end
 
 
