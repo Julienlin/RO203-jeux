@@ -14,9 +14,11 @@ function main()
     # writeToFile(false,instance,file)
     # close(file)
 
-    instance = generateInstance(7, 7)
-    println(" C = $(instance.C)")
-    displayGridSolution(instance)
+    # instance = generateInstance(7, 7)
+    # println(" C = $(instance.C)")
+    # displayGridSolution(instance)
+
+    generateDataSet()
 end
 
 main()

@@ -32,18 +32,13 @@ function generateInstance(n1::Int64, n2::Int64)
         # On choisit aleatoirement entre 10 et 20 le nombre de fois qu'on etend la galaxie
         extension = rand(4:7)
 
-        println("Construction galaxie g = ", g, " coords = [", g_x, ",", g_y, "]")
-        println("extension : ", extension)
         # On construit la frontiere de la galaxie
         F, X = init_frontiere(X, g, g_x, g_y)
-        println("F = ", F)
 
         # Ensuite on etend la galaxie
         e = 1
         while e <= extension && !isempty(F) && !isFilled(N, X)
             F, X, isChild = etendGalaxy(N, X, F, g, g_x, g_y)
-            println("X = ", X)
-            println("F = ", F)
             if isChild
                 e += 1
             end
@@ -221,8 +216,6 @@ function chooseGalaxyNode(N,X,is4Possible,isVPossible,isHPossible)
     r = rand()
     isNode = false # Vrai si on a trouve un noyau
     X_empty = emptyCells(N, X)
-    println("X = ", X)
-    println("X_empty = ", X_empty)
     if is4Possible && r < 0.25
         isPossible, A = isAnglePossible(X_empty)
         # S'il est possible de choisir un noyau au sur un coin entre 4 cases
@@ -231,7 +224,6 @@ function chooseGalaxyNode(N,X,is4Possible,isVPossible,isHPossible)
             i = rand(1:size(A, 1))
             g_x = A[i][1]
             g_y = A[i][2]
-            println("Angle : ", g_x, ",", g_y)
         else
             is4Possible = false
         end
@@ -245,7 +237,6 @@ function chooseGalaxyNode(N,X,is4Possible,isVPossible,isHPossible)
             i = rand(1:size(A, 1))
             g_x = A[i][1]
             g_y = A[i][2]
-            println("Vertical : ", g_x, ",", g_y)
         else
             isVPossible = false
         end
@@ -259,7 +250,6 @@ function chooseGalaxyNode(N,X,is4Possible,isVPossible,isHPossible)
             i = rand(1:size(A, 1))
             g_x = A[i][1]
             g_y = A[i][2]
-            println("Horizontal : ", g_x, ",", g_y)
         else
             isHPossible = false
         end
@@ -269,7 +259,6 @@ function chooseGalaxyNode(N,X,is4Possible,isVPossible,isHPossible)
         i = rand(1:size(X_empty, 1))
         g_x = 2 * X_empty[i][1] - 1
         g_y = 2 * X_empty[i][2] - 1
-        println("Center : ", g_x, ",", g_y)
     end
 
     if g_x == 0 || g_y == 0
@@ -320,7 +309,6 @@ Arguments :
         isChild = false
 
         if isempty(F)
-            println("Grid filled !")
             return F, X, false
         end
 
@@ -390,16 +378,21 @@ Remark: a grid is generated only if the corresponding output file does not alrea
     # println("In file generation.jl, in method generateDataSet(), TODO: generate an instance")
 
         path_to_dir = "../data/"
+        path_to_sol = "../dataSol/"
         generic_filename = "instance_"
 
         for (n1, n2) in [(4, 4), (16, 16), (25, 25), (5, 13), (9, 10)]
             for num in 1:10
-                inst_filename = path_to_dir * generic_filename * "n_" * string(num) * " .txt"
+                inst_filename = path_to_dir * generic_filename *"size"*string(n1)* "_n" * string(num) * " .txt"
+                sol_filename = path_to_sol * generic_filename *"size"*string(n1)* "_n" * string(num) * " .txt"
                 if !isfile(inst_filename)
                     inst = generateInstance(n1, n2)
                     println("-- Generating file " * inst_filename)
                     f_stream = open(inst_filename, "w")
                     writeToFile(false, inst, f_stream)
+                    close(f_stream)
+                    f_stream = open(sol_filename, "w")
+                    writeToFile(true, inst, f_stream)
                     close(f_stream)
                 end
             end
