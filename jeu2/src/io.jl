@@ -89,6 +89,7 @@ function writeToFile(isSolution::Bool, inst::GalaxyInstance,file::IOStream)
     end
     println(file,"")
 
+    X = inst.X
     #Lignes suivantes
     for i in 1:N[1]
         print(file,"| ")
@@ -98,7 +99,7 @@ function writeToFile(isSolution::Bool, inst::GalaxyInstance,file::IOStream)
             if C_adapte[2*i-1,2*j-1] == 1.0
                 print(file,"o ")
             elseif isSolution
-                print(file,X[i,j])
+                print(file,X[i,j]," ")
             else
                 print(file,"  ")
             end
