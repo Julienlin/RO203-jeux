@@ -243,8 +243,8 @@ function heuristicSolve(inst::GalaxyInstance)
                     newinst = GalaxyToHeuristic(GalaxyInstance(cur.N, cur.X, cur.C), F)
                     newinst.X[new_cell[1],new_cell[2]] = newinst.X[cell[1],cell[2]]
                     newinst.X[sym_cell[1],sym_cell[2]] = newinst.X[cell[1],cell[2]]
-                    push!(newinst.F, new_cell)
-                    push!(newinst.F, sym_cell)
+                    push!(newinst.frontieres, new_cell)
+                    push!(newinst.frontieres, sym_cell)
                     if !in(cur,visited)
                         isChild = true
                         push!(stack, newinst)
