@@ -18,10 +18,13 @@ function main()
     # println(" C = $(instance.C)")
     # displayGridSolution(instance)
 
-    generateDataSet()
-    solveDataSet()
-    performanceDiagram("/home/julien/Cours/ENSTA/2A/RO203/Projet_RO203/jeu2/src/performanceDiagram.png")
+    # generateDataSet()
+    # solveDataSet()
+    performanceDiagram("performanceDiagram.png")
     resultsArray("resultFile.tex")
+
+    # instance = readInputFile("../data/instance_size6_n4.txt")
+    # heuristicSolve(instance)
 end
 
 main()
