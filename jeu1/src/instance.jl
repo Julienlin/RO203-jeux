@@ -77,7 +77,7 @@ function HeuristicInstance(inst::UndeadInstance)
     end
 
     # Since it doesn't change we can compute it once
-    sort!(tuple_Y, by= x -> x[2])
+    sort!(tuple_Y, by= x -> x[2] + get_unfilled(inst,x[1]))
     # println(log, "tuple_Y = $tuple_Y")
 
     return HeuristicInstance(str_rep, N, X, Z, G, V, C, Y, P, tuple_Y)
@@ -163,12 +163,18 @@ function get_possibilities(inst)
                 P[i,j] = possibility
 
             else
-                # FIXME: See how to represent when no possibility is required for a box
                 P[i,j] = [4,4,4,4]
             end
         end
     end
     return P
+end
+
+function sort_possibilities(inst, i,j)
+    #testing whether paths monsters are symetric
+    paths_in_stakes = get_paths_in_stakes(inst, i, j)
+
+
 end
 
 function get_unfilled(inst,path)

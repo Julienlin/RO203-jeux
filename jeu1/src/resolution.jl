@@ -97,7 +97,7 @@ end
 """
 Heuristically solve an instance
 """
-function heuristicSolve(inst::UndeadInstancen log=stdout)
+function heuristicSolve(inst::UndeadInstance, log=stdout)
 
     # TODO
     # println("In file resolution.jl, in method heuristicSolve(), TODO: fix input and output, define the model")
@@ -184,7 +184,7 @@ The results are written in "../res/cplex" and "../res/heuristic"
 
 Remark: If an instance has previously been solved (either by cplex or the heuristic) it will not be solved again
 """
-function solveDataSet()
+function solveDataSet(log=stdout)
 
     dataFolder = "../data/"
     resFolder = "../res/"
@@ -275,8 +275,6 @@ function solveDataSet()
                     # end
                     # Solve it and get the results
 
-                    # log= open("result.txt", "w")
-                    log = stdout
                     isOptimal, resolutionTime = heuristicSolve(inst_heuristic, log)
 
                     # Write the solution (if any)

@@ -11,10 +11,12 @@ function main()
     # println(cplexSolve(instance))
     # displaySolution(instance)
     # writeToFile(instance,"test_writing.txt")
-    # generateDataSet()
-    solveDataSet()
-    # resultsArray("resultFile.tex")
-    # performanceDiagram("performanceDiagram")
+    generateDataSet()
+
+    log= open("result.txt", "w")
+    solveDataSet(log)
+    resultsArray("resultFile.tex")
+    performanceDiagram("performanceDiagram")
     # is_feasable, t = heuristicSolve(instance)
 end
 
