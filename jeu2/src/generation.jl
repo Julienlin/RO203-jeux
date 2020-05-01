@@ -74,96 +74,96 @@ function generateInstance(n1::Int64, n2::Int64)
 end
 
 
-    """
+"""
 Renvoie vrai si toutes les cases de la grille ont une galaxie attribuee, faux sinon
 """
-    function isFilled(N, X)
-        for i in 1:N[1]
-            for j in 1:N[2]
-                if X[i,j] == 0
-                    return false
-                end
+function isFilled(N, X)
+    for i in 1:N[1]
+        for j in 1:N[2]
+            if X[i,j] == 0
+                return false
             end
         end
-        return true
     end
+    return true
+end
 
 
-    """
+"""
 Renvoie la liste des cases non attribuees de la grille
 """
-    function emptyCells(N, X)
-        E = Vector{Vector{Int64}}(undef, 0)
-        for i in 1:N[1]
-            for j in 1:N[2]
-                if X[i,j] == 0
-                    push!(E, [i,j])
-                end
+function emptyCells(N, X)
+    E = Vector{Vector{Int64}}(undef, 0)
+    for i in 1:N[1]
+        for j in 1:N[2]
+            if X[i,j] == 0
+                push!(E, [i,j])
             end
         end
-        return E
     end
+    return E
+end
 
-    """
+"""
 Renvoie un booleen disant s'il est possible de placer un noeud de galaxie au coin de quatre cases,
  ainsi que la liste des coordonnees de noyaux possibles (evt vide)
 """
-    function isAnglePossible(X_empty)
-        isPossible = false
-        Coords = Vector{Vector{Int64}}(undef, 0)
+function isAnglePossible(X_empty)
+    isPossible = false
+    Coords = Vector{Vector{Int64}}(undef, 0)
 
-        for n in X_empty
-            i = n[1]
-            j = n[2]
-            if ([i + 1,j] in X_empty) && ([i,j + 1] in X_empty) && ([i + 1,j + 1] in X_empty)
-                push!(Coords, [2 * i,2 * j])
-                isPossible = true
-            end
+    for n in X_empty
+        i = n[1]
+        j = n[2]
+        if ([i + 1,j] in X_empty) && ([i,j + 1] in X_empty) && ([i + 1,j + 1] in X_empty)
+            push!(Coords, [2 * i,2 * j])
+            isPossible = true
         end
-        return isPossible, Coords
     end
+    return isPossible, Coords
+end
 
 
-    """
+"""
 Renvoie un booleen disant s'il est possible de placer un noeud de galaxie sur un arete verticale entre 2 cases,
 ainsi que la liste des coordonnees de noyaux possibles (evt vide)
 """
-    function isVerticalPossible(X_empty)
-        isPossible = false
-        Coords = Vector{Vector{Int64}}(undef, 0)
+function isVerticalPossible(X_empty)
+    isPossible = false
+    Coords = Vector{Vector{Int64}}(undef, 0)
 
-        for n in X_empty
-            i = n[1]
-            j = n[2]
-            if [i,j + 1] in X_empty
-                push!(Coords, [2 * i - 1,2 * j])
-                isPossible = true
-            end
+    for n in X_empty
+        i = n[1]
+        j = n[2]
+        if [i,j + 1] in X_empty
+            push!(Coords, [2 * i - 1,2 * j])
+            isPossible = true
         end
-        return isPossible, Coords
     end
+    return isPossible, Coords
+end
 
-    """
+"""
 Renvoie un booleen disant s'il est possible de placer un noeud de galaxie sur un arete horizontale entre 2 cases,
  ainsi que la liste des coordonnees de noyaux possibles (evt vide)
 """
-    function isHorizontalPossible(X_empty)
-        isPossible = false
-        Coords = Vector{Vector{Int64}}(undef, 0)
+function isHorizontalPossible(X_empty)
+    isPossible = false
+    Coords = Vector{Vector{Int64}}(undef, 0)
 
-        for n in X_empty
-            i = n[1]
-            j = n[2]
-            if [i + 1,j] in X_empty
-                push!(Coords, [2 * i,2 * j - 1])
-                isPossible = true
-            end
+    for n in X_empty
+        i = n[1]
+        j = n[2]
+        if [i + 1,j] in X_empty
+            push!(Coords, [2 * i,2 * j - 1])
+            isPossible = true
         end
-        return isPossible, Coords
     end
+    return isPossible, Coords
+end
 
 
-    """
+"""
 Cree la frontiere de la galaxie autour de son noyau
 
 Arguments :
@@ -176,35 +176,35 @@ Retourne
  - F frontiere de la galaxie
  - X grille modifiee
 """
-    function init_frontiere(X, g, g_x, g_y)
-        F = Vector{Vector{Int64}}(undef, 0)
+function init_frontiere(X, g, g_x, g_y)
+    F = Vector{Vector{Int64}}(undef, 0)
 
-        if rem(g_x, 2) == 1 && rem(g_y, 2) == 1
-            x = div(g_x, 2) + 1
-            y = div(g_y, 2) + 1
-            X[x,y] = g
-            push!(F, [x,y])
-    # Si le noyau est a cheval sur quatre cases
-        elseif rem(g_x, 2) == 0 && rem(g_y, 2) == 0
-            X[div(g_x - 1, 2) + 1 , div(g_y - 1, 2) + 1] = g
-            X[div(g_x - 1, 2) + 1 , div(g_y + 1, 2) + 1] = g
-            X[div(g_x + 1, 2) + 1 , div(g_y - 1, 2) + 1] = g
-            X[div(g_x + 1, 2) + 1 , div(g_y + 1, 2) + 1] = g
-            push!(F, [div(g_x - 1, 2) + 1,div(g_y - 1, 2) + 1], [div(g_x + 1, 2) + 1,div(g_y - 1, 2) + 1], [div(g_x - 1, 2) + 1,div(g_y + 1, 2) + 1], [div(g_x + 1, 2) + 1,div(g_y + 1, 2) + 1])
-   # Si le noyau est a cheval entre deux cases, sur une ligne horizontale
-        elseif rem(g_x, 2) == 0 && rem(g_y, 2) == 1
-            X[div(g_x + 1, 2) + 1 , div(g_y, 2) + 1 ] = g
-            X[div(g_x - 1, 2) + 1 , div(g_y, 2) + 1 ] = g
-            push!(F, [div(g_x + 1, 2) + 1,div(g_y, 2) + 1], [div(g_x - 1, 2) + 1,div(g_y, 2) + 1])
-    # Si le noyau est a cheval entre deux cases, sur une ligne verticale
-        elseif rem(g_x, 2) == 1 && rem(g_y, 2) == 0
-            X[div(g_x, 2) + 1 , div(g_y + 1, 2) + 1] = g
-            X[div(g_x, 2) + 1 , div(g_y - 1, 2) + 1] = g
-            push!(F,  [div(g_x, 2) + 1,div(g_y - 1, 2) + 1 ], [div(g_x, 2) + 1,div(g_y + 1, 2) + 1])
-        end
-
-        return F, X
+    if rem(g_x, 2) == 1 && rem(g_y, 2) == 1
+        x = div(g_x, 2) + 1
+        y = div(g_y, 2) + 1
+        X[x,y] = g
+        push!(F, [x,y])
+        # Si le noyau est a cheval sur quatre cases
+    elseif rem(g_x, 2) == 0 && rem(g_y, 2) == 0
+        X[div(g_x - 1, 2) + 1 , div(g_y - 1, 2) + 1] = g
+        X[div(g_x - 1, 2) + 1 , div(g_y + 1, 2) + 1] = g
+        X[div(g_x + 1, 2) + 1 , div(g_y - 1, 2) + 1] = g
+        X[div(g_x + 1, 2) + 1 , div(g_y + 1, 2) + 1] = g
+        push!(F, [div(g_x - 1, 2) + 1,div(g_y - 1, 2) + 1], [div(g_x + 1, 2) + 1,div(g_y - 1, 2) + 1], [div(g_x - 1, 2) + 1,div(g_y + 1, 2) + 1], [div(g_x + 1, 2) + 1,div(g_y + 1, 2) + 1])
+        # Si le noyau est a cheval entre deux cases, sur une ligne horizontale
+    elseif rem(g_x, 2) == 0 && rem(g_y, 2) == 1
+        X[div(g_x + 1, 2) + 1 , div(g_y, 2) + 1 ] = g
+        X[div(g_x - 1, 2) + 1 , div(g_y, 2) + 1 ] = g
+        push!(F, [div(g_x + 1, 2) + 1,div(g_y, 2) + 1], [div(g_x - 1, 2) + 1,div(g_y, 2) + 1])
+        # Si le noyau est a cheval entre deux cases, sur une ligne verticale
+    elseif rem(g_x, 2) == 1 && rem(g_y, 2) == 0
+        X[div(g_x, 2) + 1 , div(g_y + 1, 2) + 1] = g
+        X[div(g_x, 2) + 1 , div(g_y - 1, 2) + 1] = g
+        push!(F,  [div(g_x, 2) + 1,div(g_y - 1, 2) + 1 ], [div(g_x, 2) + 1,div(g_y + 1, 2) + 1])
     end
+
+    return F, X
+end
 
 
 function chooseGalaxyNode(N,X,is4Possible,isVPossible,isHPossible)
@@ -268,7 +268,7 @@ function chooseGalaxyNode(N,X,is4Possible,isVPossible,isHPossible)
     return g_x,g_y
 end
 
-    """
+"""
 Etend la galaxie g a partir de sa frontiere
 
 Arguments :
@@ -286,67 +286,67 @@ Arguments :
 
 """
 
-    function etendGalaxy(N, X, F, g, g_x, g_y)
+function etendGalaxy(N, X, F, g, g_x, g_y)
 
     # On choisit la case de frontiere que l'on veut etendre
-        j = rand(1:size(F,1))
-        isCell = false
+    j = rand(1:size(F,1))
+    isCell = false
     # On cherche une cellule ayant un voisin encore non attribue
-        while !isCell && !isempty(F)
+    while !isCell && !isempty(F)
         # Si la cellule n'a pas de voisin libre, on ne peut pas etendre de galaxie a partir d'elle, donc elle ne doit plus faire partie de la frontiere
-            V = freeNeighbors(F[j][1], F[j][2], X, N)
-            if isempty(V)
-                deleteat!(F, j)
-                if isempty(F)
-                    break
-                end
-                j = rand(1:size(F,1))
-            else
-                isCell = true
-            end
-        end
-
-        isChild = false
-
-        if isempty(F)
-            return F, X, false
-        end
-
-        cell = F[j]
-        V = freeNeighbors(cell[1], cell[2], X, N)
-
-    # Parmi les voisins, on en cherche un dont le symetrique par rapport au centre de la galaxie est aussi libre (et dans la grille)
-        v = 1
-        n = size(V, 1)
-        while !isChild && v <= n
-
-        # Calcul des coordonnees de la cellule symetrique
-            new_cell = V[v]
-            sym_cell = [0,0]
-            sym_cell[1] = div(2 * g_x + 1 -  2 * new_cell[1] - 1, 2) + 1
-            sym_cell[2] = div(2 * g_y + 1 -  2 * new_cell[2] - 1, 2) + 1
-
-        # Si la cellule est valide, on etend la galaxie a cette cellule et son symetrique et on cree une nouvelle instance
-            if sym_cell[1] > 0 && sym_cell[1] <= N[1] && sym_cell[2] > 0 && sym_cell[2] <= N[2] && X[sym_cell[1],sym_cell[2]] == 0
-                isChild = true
-                X[new_cell[1],new_cell[2]] = g
-                X[sym_cell[1],sym_cell[2]] = g
-                push!(F, new_cell)
-                push!(F, sym_cell)
-            else
-                v += 1
-            end
-        end
-
-        if v == n + 1 # Dans ce cas, aucun voisin de la cellule consideree est valide, donc on ne peut pas etendre la galaxie a partir de cell
+        V = freeNeighbors(F[j][1], F[j][2], X, N)
+        if isempty(V)
             deleteat!(F, j)
+            if isempty(F)
+                break
+            end
+            j = rand(1:size(F,1))
+        else
+            isCell = true
         end
-
-        return F, X, isChild
-
     end
 
-    """
+    isChild = false
+
+    if isempty(F)
+        return F, X, false
+    end
+
+    cell = F[j]
+    V = freeNeighbors(cell[1], cell[2], X, N)
+
+    # Parmi les voisins, on en cherche un dont le symetrique par rapport au centre de la galaxie est aussi libre (et dans la grille)
+    v = 1
+    n = size(V, 1)
+    while !isChild && v <= n
+
+        # Calcul des coordonnees de la cellule symetrique
+        new_cell = V[v]
+        sym_cell = [0,0]
+        sym_cell[1] = div(2 * g_x + 1 -  2 * new_cell[1] - 1, 2) + 1
+        sym_cell[2] = div(2 * g_y + 1 -  2 * new_cell[2] - 1, 2) + 1
+
+        # Si la cellule est valide, on etend la galaxie a cette cellule et son symetrique et on cree une nouvelle instance
+        if sym_cell[1] > 0 && sym_cell[1] <= N[1] && sym_cell[2] > 0 && sym_cell[2] <= N[2] && X[sym_cell[1],sym_cell[2]] == 0
+            isChild = true
+            X[new_cell[1],new_cell[2]] = g
+            X[sym_cell[1],sym_cell[2]] = g
+            push!(F, new_cell)
+            push!(F, sym_cell)
+        else
+            v += 1
+        end
+    end
+
+    if v == n + 1 # Dans ce cas, aucun voisin de la cellule consideree est valide, donc on ne peut pas etendre la galaxie a partir de cell
+        deleteat!(F, j)
+    end
+
+    return F, X, isChild
+
+end
+
+"""
 Return the coordinates of the free neighbors (assigned 0) of the cell (i,j)
 """
     function freeNeighbors(i, j, X, N)
@@ -367,37 +367,34 @@ Return the coordinates of the free neighbors (assigned 0) of the cell (i,j)
     end
 
 
-    """
+"""
 Generate all the instances
 
 Remark: a grid is generated only if the corresponding output file does not already exist
 """
-    function generateDataSet()
+function generateDataSet()
 
     # TODO
     # println("In file generation.jl, in method generateDataSet(), TODO: generate an instance")
 
-        path_to_dir = "../data/"
-        path_to_sol = "../dataSol/"
-        generic_filename = "instance_"
+    path_to_dir = "../data/"
+    path_to_sol = "../dataSol/"
+    generic_filename = "instance_"
 
-        for (n1, n2) in [(4, 4), (16, 16), (25, 25), (5, 13), (9, 10)]
-            for num in 1:10
-                inst_filename = path_to_dir * generic_filename *"size"*string(n1)* "_n" * string(num) * " .txt"
-                sol_filename = path_to_sol * generic_filename *"size"*string(n1)* "_n" * string(num) * " .txt"
-                if !isfile(inst_filename)
-                    inst = generateInstance(n1, n2)
-                    println("-- Generating file " * inst_filename)
-                    f_stream = open(inst_filename, "w")
-                    writeToFile(false, inst, f_stream)
-                    close(f_stream)
-                    f_stream = open(sol_filename, "w")
-                    writeToFile(true, inst, f_stream)
-                    close(f_stream)
-                end
+    for (n1, n2) in [(4, 4), (16, 16), (25, 25), (5, 13), (9, 10)]
+        for num in 1:10
+            inst_filename = path_to_dir * generic_filename *"size"*string(n1)* "_n" * string(num) * " .txt"
+            sol_filename = path_to_sol * generic_filename *"size"*string(n1)* "_n" * string(num) * " .txt"
+            if !isfile(inst_filename)
+                inst = generateInstance(n1, n2)
+                println("-- Generating file " * inst_filename)
+                f_stream = open(inst_filename, "w")
+                writeToFile(false, inst, f_stream)
+                close(f_stream)
+                f_stream = open(sol_filename, "w")
+                writeToFile(true, inst, f_stream)
+                close(f_stream)
             end
         end
     end
-
-
-
+end
