@@ -384,7 +384,7 @@ function generateDataSet()
     end
     generic_filename = "instance_"
 
-    for (n1, n2) in [(4, 4), (6, 6), (8, 8), (10, 10)]
+    for (n1, n2) in [(4, 4), (6, 6), (8, 8)]
         for num in 1:10
             inst_filename = path_to_dir * generic_filename * "size" * string(n1) * "_n" * string(num) * ".txt"
             sol_filename = path_to_sol * generic_filename * "size" * string(n1) * "_n" * string(num) * ".txt"

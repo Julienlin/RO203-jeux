@@ -32,36 +32,36 @@ function readInputFile(inputFile::String)
     yN = parse(Int, buf[2])
     N = [xN,yN]
 
-    X = zeros((xN,yN))
+    X = zeros((xN, yN))
     C = Vector{Vector{Int64}}(undef, 0)
 
-    #First line of the grid
+    # First line of the grid
 
-    buf = split(data[2],"")
+    buf = split(data[2], "")
     for c in buf
-        if c=="o"
+        if c == "o"
             println("Probleme dans le fichier de definition d'instance : noyau de galaxie sur le bord de la grille.")
         end
     end
 
-    #For each line of the grid (except the first one and the last one)
-    for i in 2:(2*N[1])
-        buf = split(data[i+1],"")
-        for j in 1:(4*N[2])
-            if buf[j]=="o"
-                if j==1
+    # For each line of the grid (except the first one and the last one)
+    for i in 2:(2 * N[1])
+        buf = split(data[i + 1], "")
+        for j in 1:(4 * N[2])
+            if buf[j] == "o"
+                if j == 1
                     println("Probleme dans le fichier de definition d'instance : noyau de galaxie sur le bord de la grille.")
-                elseif j%2 == 0 #Cet indice est a cheval entre le bord d'une case et son milieu
+                elseif j % 2 == 0 # Cet indice est a cheval entre le bord d'une case et son milieu
                     println("Probleme dans le fichier de definition d'instance : noyau de galaxie mal place.")
                 else
-                    k=div(j,2)
-                    push!(C, [i-1, k])
+                    k = div(j, 2)
+                    push!(C, [i - 1, k])
                 end
             end
         end
     end
 
-    return GalaxyInstance(N,X,C)
+    return GalaxyInstance(N, X, C)
 
 end
 
@@ -73,65 +73,65 @@ isSolution::Bool : si on ecrit la solution ou seulement le canevas
 inst::GalaxyInstance : instance a ecrire
 file::IOStream : IOStream a ecrire
 """
-function writeToFile(isSolution::Bool, inst::GalaxyInstance,file::IOStream)
+function writeToFile(isSolution::Bool, inst::GalaxyInstance, file::IOStream)
     N = inst.N
-    println(file,"#Taille de la grille")
-    println(file,N[1],",",N[2])
-    println(file,"#Grille")
-    C_adapte = zeros((2*N[1],2*N[2]))
+    println(file, "#Taille de la grille")
+    println(file, N[1], ",", N[2])
+    println(file, "#Grille")
+    C_adapte = zeros((2 * N[1], 2 * N[2]))
     for c in inst.C
-        C_adapte[c[1],c[2]]=1
+        C_adapte[c[1],c[2]] = 1
     end
 
-    #1e ligne de la grille
+    # 1e ligne de la grille
     for s in 1:N[2]
-        print(file," ---")
+        print(file, " ---")
     end
-    println(file,"")
+    println(file, "")
 
     X = inst.X
-    #Lignes suivantes
+    # Lignes suivantes
     for i in 1:N[1]
-        print(file,"| ")
+        print(file, "| ")
         for j in 1:N[2]
-            #Affichage du centre de la cellule
+            # Affichage du centre de la cellule
 
-            if C_adapte[2*i-1,2*j-1] == 1.0
-                print(file,"o ")
+            if C_adapte[2 * i - 1,2 * j - 1] == 1.0
+                print(file, "o ")
             elseif isSolution
-                print(file,X[i,j]," ")
+                print(file, X[i,j], " ")
             else
-                print(file,"  ")
+                print(file, "  ")
             end
-            #Affichage du bord droit de la cellule
-            if C_adapte[2*i-1,2*j] == 1.0
-                print(file,"o ")
+            # Affichage du bord droit de la cellule
+            if C_adapte[2 * i - 1,2 * j] == 1.0
+                print(file, "o ")
             else
-                print(file,"| ")
+                print(file, "| ")
             end
         end
 
-        #Fin de la ligne
-        println(file,"")
+        # Fin de la ligne
+        println(file, "")
 
-        #Affichage de la ligne du bas de la cellule
-        print(file," -")
+        # Affichage de la ligne du bas de la cellule
+        print(file, " -")
         for j in 1:N[2]
-            #Affichage du milieu du bord de la cellule
-            if C_adapte[2*i,2*j-1] == 1.0
-                print(file,"o-")
+            # Affichage du milieu du bord de la cellule
+            if C_adapte[2 * i,2 * j - 1] == 1.0
+                print(file, "o-")
             else
-                print(file,"--")
+                print(file, "--")
             end
-            #Affichage du coin en bas a droite de la cellule
-            if C_adapte[2*i,2*j] == 1.0
-                print(file,"o-")
-            elseif 2*j<2*N[2]
-                print(file," -")
+            # Affichage du coin en bas a droite de la cellule
+            if C_adapte[2 * i,2 * j] == 1.0
+                print(file, "o-")
+            elseif 2 * j < 2 * N[2]
+                print(file, " -")
             end
         end
-        #Fin de la ligne
-        println(file,"")
+        # Fin de la ligne
+        println(file, "")
     end
 
 end
@@ -150,55 +150,55 @@ function displayGrid(inst::GalaxyInstance)
     println("")
 
     N = inst.N
-    C_adapte = zeros((2*N[1],2*N[2])) # On triche par facilite dans les dimensions de C_adapte qui devraient etre 2*N-1
+    C_adapte = zeros((2 * N[1], 2 * N[2])) # On triche par facilite dans les dimensions de C_adapte qui devraient etre 2*N-1
     for c in inst.C
-        C_adapte[c[1],c[2]]=1
+        C_adapte[c[1],c[2]] = 1
     end
-    #1e ligne de la grille
+    # 1e ligne de la grille
     for s in 1:N[2]
         print(" ---")
     end
     println("")
 
-    #Lignes suivantes
+    # Lignes suivantes
     for i in 1:N[1]
         print("| ")
         for j in 1:N[2]
-            #Affichage du centre de la cellule
+            # Affichage du centre de la cellule
 
-            if C_adapte[2*i-1,2*j-1] == 1.0
+            if C_adapte[2 * i - 1,2 * j - 1] == 1.0
                 print("o ")
             else
                 print("  ")
             end
-            #Affichage du bord droit de la cellule
-            if C_adapte[2*i-1,2*j] == 1.0
+            # Affichage du bord droit de la cellule
+            if C_adapte[2 * i - 1,2 * j] == 1.0
                 print("o ")
             else
                 print("| ")
             end
         end
 
-        #Fin de la ligne
+        # Fin de la ligne
         println("")
 
-        #Affichage de la ligne du bas de la cellule
+        # Affichage de la ligne du bas de la cellule
         print(" -")
         for j in 1:N[2]
-            #Affichage du milieu du bord de la cellule
-            if C_adapte[2*i,2*j-1] == 1.0
+            # Affichage du milieu du bord de la cellule
+            if C_adapte[2 * i,2 * j - 1] == 1.0
                 print("o-")
             else
                 print("--")
             end
-            #Affichage du coin en bas a droite de la cellule
-            if C_adapte[2*i,2*j] == 1.0
+            # Affichage du coin en bas a droite de la cellule
+            if C_adapte[2 * i,2 * j] == 1.0
                 print("o-")
-            elseif 2*j<2*N[2]
+            elseif 2 * j < 2 * N[2]
                 print(" -")
             end
         end
-        #Fin de la ligne
+        # Fin de la ligne
         println("")
     end
 end
@@ -219,56 +219,56 @@ function displayGridSolution(inst)
     N = inst.N
     X = inst.X
     C = inst.C
-    C_adapte = zeros((2*N[1],2*N[2]))
+    C_adapte = zeros((2 * N[1], 2 * N[2]))
     for c in inst.C
-        C_adapte[c[1],c[2]]=1
+        C_adapte[c[1],c[2]] = 1
     end
 
-    #1e ligne de la grille
+    # 1e ligne de la grille
     for s in 1:N[2]
         print(" ---")
     end
     println("")
 
-    #Lignes suivantes
+    # Lignes suivantes
     for i in 1:N[1]
         print("| ")
         for j in 1:N[2]
-            #Affichage du centre de la cellule
+            # Affichage du centre de la cellule
 
-            if C_adapte[2*i-1,2*j-1] == 1.0
+            if C_adapte[2 * i - 1,2 * j - 1] == 1.0
                 print("o ")
             else
-                print(X[i,j]," ")
+                print(X[i,j], " ")
             end
-            #Affichage du bord droit de la cellule
-            if C_adapte[2*i-1,2*j] == 1.0
+            # Affichage du bord droit de la cellule
+            if C_adapte[2 * i - 1,2 * j] == 1.0
                 print("o ")
             else
                 print("| ")
             end
         end
 
-        #Fin de la ligne
+        # Fin de la ligne
         println("")
 
-        #Affichage de la ligne du bas de la cellule
+        # Affichage de la ligne du bas de la cellule
         print(" -")
         for j in 1:N[2]
-            #Affichage du milieu du bord de la cellule
-            if C_adapte[2*i,2*j-1] == 1.0
+            # Affichage du milieu du bord de la cellule
+            if C_adapte[2 * i,2 * j - 1] == 1.0
                 print("o-")
             else
                 print("--")
             end
-            #Affichage du coin en bas a droite de la cellule
-            if C_adapte[2*i,2*j] == 1.0
+            # Affichage du coin en bas a droite de la cellule
+            if C_adapte[2 * i,2 * j] == 1.0
                 print("o-")
-            elseif 2*j<2*N[2]
+            elseif 2 * j < 2 * N[2]
                 print(" -")
             end
         end
-        #Fin de la ligne
+        # Fin de la ligne
         println("")
     end
 end
@@ -290,13 +290,15 @@ function performanceDiagram(outputFile::String)
 
     resultFolder = "../res/"
 
+    println(pwd())
+
     # Maximal number of files in a subfolder
     maxSize = 0
 
     # Number of subfolders
     subfolderCount = 0
 
-    folderName = Array{String, 1}()
+    folderName = Array{String,1}()
 
     # For each file in the result folder
     for file in readdir(resultFolder)
@@ -343,6 +345,8 @@ function performanceDiagram(outputFile::String)
             for resultFile in filter(x->occursin(".txt", x), readdir(path))
 
                 fileCount += 1
+
+                println("path * " / " * resultFile = $(path * "/" * resultFile)")
                 include(path * "/" * resultFile)
 
                 if isOptimal
@@ -357,15 +361,15 @@ function performanceDiagram(outputFile::String)
     end
 
     # Sort each row increasingly
-    results = sort(results, dims=2)
+    results = sort(results, dims = 2)
 
     println("Max solve time: ", maxSolveTime)
 
     # For each line to plot
-    for dim in 1: size(results, 1)
+    for dim in 1:size(results, 1)
 
-        x = Array{Float64, 1}()
-        y = Array{Float64, 1}()
+        x = Array{Float64,1}()
+        y = Array{Float64,1}()
 
         # x coordinate of the previous inflexion point
         previousX = 0
@@ -410,12 +414,12 @@ function performanceDiagram(outputFile::String)
         if dim == 1
 
             # Draw a new plot
-            plot(x, y, label = folderName[dim], legend = :bottomright, xaxis = "Time (s)", yaxis = "Solved instances",linewidth=3)
+            plot(x, y, label = folderName[dim], legend = :bottomright, xaxis = "Time (s)", yaxis = "Solved instances", linewidth = 3)
 
         # Otherwise
         else
             # Add the new curve to the created plot
-            savefig(plot!(x, y, label = folderName[dim], linewidth=3), outputFile)
+            savefig(plot!(x, y, label = folderName[dim], linewidth = 3), outputFile)
         end
     end
 end
@@ -474,10 +478,10 @@ function resultsArray(outputFile::String)
  \begin{tabular}{l"""
 
     # Name of the subfolder of the result folder (i.e, the resolution methods used)
-    folderName = Array{String, 1}()
+    folderName = Array{String,1}()
 
     # List of all the instances solved by at least one resolution method
-    solvedInstances = Array{String, 1}()
+    solvedInstances = Array{String,1}()
 
     # For each file in the result folder
     for file in readdir(resultFolder)
@@ -560,7 +564,7 @@ function resultsArray(outputFile::String)
 
                 include(path)
 
-                println(fout, " & ", round(solveTime, digits=2), " & ")
+                println(fout, " & ", round(solveTime, digits = 2), " & ")
 
                 if isOptimal
                     println(fout, "\$\\times\$")

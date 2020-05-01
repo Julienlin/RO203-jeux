@@ -18,8 +18,10 @@ function main()
     # println(" C = $(instance.C)")
     # displayGridSolution(instance)
 
-    generateDataSet()
-    solveDataSet()
+    # generateDataSet()
+    # solveDataSet()
+    performanceDiagram("performanceDiagram.png")
+    resultsArray("resultFile.tex")
 end
 
 main()
