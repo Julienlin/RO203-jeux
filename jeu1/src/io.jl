@@ -460,7 +460,8 @@ function performanceDiagram(outputFile::String)
 
     # Draw a new plot
             plot(x, y, label = folderName[dim], legend = :bottomright, xaxis = "Time (s)", yaxis = "Solved instances", linewidth = 3)
-            savefig(plot!(x, y, label = folderName[dim], linewidth = 3), outputFile)
+            savefig(outputFile)
+            # savefig(plot!(x, y, label = folderName[dim], linewidth = 3), outputFile)
 
     # Otherwise
         else

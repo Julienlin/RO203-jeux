@@ -97,7 +97,7 @@ end
 """
 Heuristically solve an instance
 """
-function heuristicSolve(inst::UndeadInstance, log=stdout)
+function heuristicSolve(inst::UndeadInstance, log = stdout)
 
     # TODO
     # println("In file resolution.jl, in method heuristicSolve(), TODO: fix input and output, define the model")
@@ -121,13 +121,13 @@ function heuristicSolve(inst::UndeadInstance, log=stdout)
 
     start = time()
 
-    while !isempty(stack) && time()- start < 100
+    while !isempty(stack) && time() - start < 100
         cur = head(stack)
         # displaySolution(cur,log)
         isStillFeasable = is_valid(cur) # instance est encore faisable
         isFilled = is_finished(cur) # instance est noeud terminal
         if isFilled
-            for line in 1:size(inst.X,1)
+            for line in 1:size(inst.X, 1)
                 for row in 1:size(inst.X, 2)
                     inst.X[line, row] = cur.X[line,row]
                 end
@@ -142,7 +142,7 @@ function heuristicSolve(inst::UndeadInstance, log=stdout)
             # sorting the cur node's children
             # unfilled_cells = sort_by_possibilities(cur, get_unfilled_boxes(cur))
             # unfilled_cells = sort_by_paths_length(cur, get_unfilled_boxes(cur))
-            unfilled_cells = sort_by_path(cur, get_unfilled_boxes(cur),log)
+            unfilled_cells = sort_by_path(cur, get_unfilled_boxes(cur), log)
             # println(log,"unfilled_cells = $unfilled_cells")
             # for each child test all the possibilities until found an unvisited child
             for el in unfilled_cells
@@ -178,15 +178,15 @@ The results are written in "../res/cplex" and "../res/heuristic"
 
 Remark: If an instance has previously been solved (either by cplex or the heuristic) it will not be solved again
 """
-function solveDataSet(log=stdout)
+function solveDataSet(log = stdout)
 
     dataFolder = "../data/"
     resFolder = "../res/"
     resInstFolder = "../resInst/"
 
     # Array which contains the name of the resolution methods
-    # resolutionMethod = ["cplex"]
-    resolutionMethod = ["heuristique"]
+    resolutionMethod = ["cplex"]
+    # resolutionMethod = ["heuristique"]
     # resolutionMethod = ["cplex", "heuristique"]
 
     # Array which contains the result folder of each resolution method

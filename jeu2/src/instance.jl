@@ -27,6 +27,13 @@ struct HeuristicInstance
     frontieres::Vector{Vector{Int64}}
 end
 
+function GalaxyInstance(inst)
+    N= copy(inst.N)
+    X= copy(inst.X)
+    C= copy(inst.C)
+    return GalaxyInstance(N,X,C)
+end
+
 function GalaxyToHeuristic(inst::GalaxyInstance,front)
     N= copy(inst.N)
     X= copy(inst.X)
