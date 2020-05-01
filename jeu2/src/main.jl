@@ -20,8 +20,8 @@ function main()
 
     # generateDataSet()
     # solveDataSet()
-    performanceDiagram("performanceDiagram.png")
-    resultsArray("resultFile.tex")
+    # performanceDiagram("performanceDiagram.png")
+    # resultsArray("resultFile.tex")
 
     # instance = readInputFile("../data/instance_size6_n4.txt")
     # heuristicSolve(instance)

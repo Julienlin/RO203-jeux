@@ -215,7 +215,8 @@ function heuristicSolve(inst::GalaxyInstance)
             end
             if j==0
                 push!(visited,cur)
-                deleteat!(stack,lastindex(stack))
+                # deleteat!(stack,lastindex(stack))
+                pop!(stack)
                 break
             end
             cell = F[j]
@@ -238,14 +239,15 @@ function heuristicSolve(inst::GalaxyInstance)
                 sym_cell[2] = div(2 * g[2] + 1 -  2 * new_cell[2] - 1, 2) + 1
 
                 # Si la cellule est valide, on etend la galaxie a cette cellule et son symetrique et on cree une nouvelle instance
-                if sym_cell[1] > 0 && sym_cell[1] <= N[1] && sym_cell[2] > 0 && sym_cell[2] <= N[2] && X[sym_cell[1],sym_cell[2]] == 0
-                    cur.X[new_cell[1],new_cell[2]] = cur.X[cell[1],cell[2]]
-                    cur.X[sym_cell[1],sym_cell[2]] = cur.X[cell[1],cell[2]]
-                    push!(F, new_cell)
-                    push!(F, sym_cell)
+                if sym_cell[1] > 0 && sym_cell[1] <= N[1] && sym_cell[2] > 0 && sym_cell[2] <= N[2] && cur.X[sym_cell[1],sym_cell[2]] == 0
+                    newinst = GalaxyToHeuristic(GalaxyInstance(cur.N, cur.X, cur.C), F)
+                    newinst.X[new_cell[1],new_cell[2]] = newinst.X[cell[1],cell[2]]
+                    newinst.X[sym_cell[1],sym_cell[2]] = newinst.X[cell[1],cell[2]]
+                    push!(newinst.F, new_cell)
+                    push!(newinst.F, sym_cell)
                     if !in(cur,visited)
                         isChild = true
-                        push!(stack, GalaxyToHeuristic(GalaxyInstance(cur.N, cur.X, cur.C), F))
+                        push!(stack, newinst)
                     else
                         v+=1
                     end
