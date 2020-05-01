@@ -349,22 +349,22 @@ end
 """
 Return the coordinates of the free neighbors (assigned 0) of the cell (i,j)
 """
-    function freeNeighbors(i, j, X, N)
-        V = Vector{Vector{Int64}}(undef, 0)
-        if i - 1 > 0 && X[i - 1,j] == 0
-            push!(V, [i - 1,j])
-        end
-        if i + 1 <= N[1] && X[i + 1,j] == 0
-            push!(V, [i + 1,j])
-        end
-        if j - 1 > 0 && X[i,j - 1] == 0
-            push!(V, [i,j - 1])
-        end
-        if j + 1 <= N[1] && X[i,j + 1] == 0
-            push!(V, [i,j + 1])
-        end
-        return V
+function freeNeighbors(i, j, X, N)
+    V = Vector{Vector{Int64}}(undef, 0)
+    if i - 1 > 0 && X[i - 1,j] == 0
+        push!(V, [i - 1,j])
     end
+    if i + 1 <= N[1] && X[i + 1,j] == 0
+        push!(V, [i + 1,j])
+    end
+    if j - 1 > 0 && X[i,j - 1] == 0
+        push!(V, [i,j - 1])
+    end
+    if j + 1 <= N[1] && X[i,j + 1] == 0
+        push!(V, [i,j + 1])
+    end
+    return V
+end
 
 
 """
