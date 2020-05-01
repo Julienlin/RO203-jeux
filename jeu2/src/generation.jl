@@ -27,7 +27,7 @@ function generateInstance(n1::Int64, n2::Int64)
     g = 1
     while g <= G
         # On choisit aleatoirement les coordonnees du centre de la galaxie
-        g_x,g_y = chooseGalaxyNode(N,X,is4Possible,isVPossible,isHPossible)
+        g_x, g_y = chooseGalaxyNode(N, X, is4Possible, isVPossible, isHPossible)
 
         # On choisit aleatoirement entre 10 et 20 le nombre de fois qu'on etend la galaxie
         extension = rand(4:7)
@@ -55,8 +55,8 @@ function generateInstance(n1::Int64, n2::Int64)
     # Ensuite on remplit le reste de la grille
     while !isFilled(N, X)
 
-        g+=1
-        g_x,g_y = chooseGalaxyNode(N,X,is4Possible,isVPossible,isHPossible)
+        g += 1
+        g_x, g_y = chooseGalaxyNode(N, X, is4Possible, isVPossible, isHPossible)
 
         # Ensuite on calcule la frontiere de cette galaxie
         F, X = init_frontiere(X, g, g_x, g_y)
@@ -207,7 +207,7 @@ function init_frontiere(X, g, g_x, g_y)
 end
 
 
-function chooseGalaxyNode(N,X,is4Possible,isVPossible,isHPossible)
+function chooseGalaxyNode(N, X, is4Possible, isVPossible, isHPossible)
     # D'abord on doit choisir le centre de la nouvelle galaxie
     g_x = 0
     g_y = 0
@@ -265,7 +265,7 @@ function chooseGalaxyNode(N,X,is4Possible,isVPossible,isHPossible)
         println("Choix de centre de galaxie impossible !!!")
     end
 
-    return g_x,g_y
+    return g_x, g_y
 end
 
 """
@@ -289,7 +289,7 @@ Arguments :
 function etendGalaxy(N, X, F, g, g_x, g_y)
 
     # On choisit la case de frontiere que l'on veut etendre
-    j = rand(1:size(F,1))
+    j = rand(1:size(F, 1))
     isCell = false
     # On cherche une cellule ayant un voisin encore non attribue
     while !isCell && !isempty(F)
@@ -300,7 +300,7 @@ function etendGalaxy(N, X, F, g, g_x, g_y)
             if isempty(F)
                 break
             end
-            j = rand(1:size(F,1))
+            j = rand(1:size(F, 1))
         else
             isCell = true
         end
@@ -383,8 +383,8 @@ function generateDataSet()
 
     for (n1, n2) in [(4, 4), (16, 16), (25, 25), (5, 13), (9, 10)]
         for num in 1:10
-            inst_filename = path_to_dir * generic_filename *"size"*string(n1)* "_n" * string(num) * " .txt"
-            sol_filename = path_to_sol * generic_filename *"size"*string(n1)* "_n" * string(num) * " .txt"
+            inst_filename = path_to_dir * generic_filename * "size" * string(n1) * "_n" * string(num) * ".txt"
+            sol_filename = path_to_sol * generic_filename * "size" * string(n1) * "_n" * string(num) * ".txt"
             if !isfile(inst_filename)
                 inst = generateInstance(n1, n2)
                 println("-- Generating file " * inst_filename)
