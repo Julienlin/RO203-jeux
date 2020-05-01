@@ -139,6 +139,7 @@ function heuristicSolve(inst::GalaxyInstance)
 
     # Pile des differents noeuds de l'arbre de resolution
     stack = Vector{HeuristicInstance}(undef, 0)
+    visited = Vector{HeuristicInstance}(undef, 0)
 
     # D'abord on contruit l'instance heuristique de l'instance a resoudre.
     # On initialise les frontieres aux cases "touchees" directement par les noyaux des galaxies
@@ -212,9 +213,10 @@ function heuristicSolve(inst::GalaxyInstance)
                     isCell = true
                 end
             end
-            if j == 0
-                println("Error : Grid filled !!!")
-                return false, time() - start
+            if j==0
+                push!(visited,cur)
+                deleteat!(stack,lastindex(stack))
+                break
             end
             cell = F[j]
             V = freeNeighbors(cell, cur.X, cur.N)
@@ -237,12 +239,16 @@ function heuristicSolve(inst::GalaxyInstance)
 
                 # Si la cellule est valide, on etend la galaxie a cette cellule et son symetrique et on cree une nouvelle instance
                 if sym_cell[1] > 0 && sym_cell[1] <= N[1] && sym_cell[2] > 0 && sym_cell[2] <= N[2] && X[sym_cell[1],sym_cell[2]] == 0
-                    isChild = true
                     cur.X[new_cell[1],new_cell[2]] = cur.X[cell[1],cell[2]]
                     cur.X[sym_cell[1],sym_cell[2]] = cur.X[cell[1],cell[2]]
                     push!(F, new_cell)
                     push!(F, sym_cell)
-                    push!(stack, GalaxyToHeuristic(GalaxyInstance(cur.N, cur.X, cur.C), F))
+                    if !in(cur,visited)
+                        isChild = true
+                        push!(stack, GalaxyToHeuristic(GalaxyInstance(cur.N, cur.X, cur.C), F))
+                    else
+                        v+=1
+                    end
                 else
                     v += 1
                 end
@@ -313,8 +319,8 @@ function solveDataSet()
     resInstFolder = "../resInst/"
 
     # Array which contains the name of the resolution methods
-    resolutionMethod = ["cplex"]
-    # resolutionMethod = ["cplex", "heuristique"]
+    # resolutionMethod = ["cplex"]
+    resolutionMethod = ["cplex", "heuristique"]
 
     # Array which contains the result folder of each resolution method
     resolutionFolder = resFolder .* resolutionMethod
