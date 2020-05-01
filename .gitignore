@@ -36,3 +36,5 @@ jeu1/res/cplex/*
 jeu1/res/heuristique/*
 jeu1/dataSol/*
 jeu1/resInst/*
+*/dataHeu/*
+*/resInstHeu/*

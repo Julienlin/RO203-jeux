@@ -290,8 +290,6 @@ function performanceDiagram(outputFile::String)
 
     resultFolder = "../res/"
 
-    println(pwd())
-
     # Maximal number of files in a subfolder
     maxSize = 0
 
@@ -305,7 +303,7 @@ function performanceDiagram(outputFile::String)
 
         path = resultFolder * file
 
-        # If it is a subfolder
+    # If it is a subfolder
         if isdir(path)
 
             folderName = vcat(folderName, file)
@@ -335,18 +333,17 @@ function performanceDiagram(outputFile::String)
     for file in readdir(resultFolder)
 
         path = resultFolder * file
+        println("path = $path")
 
         if isdir(path)
 
             folderCount += 1
             fileCount = 0
 
-            # For each text file in the subfolder
+    # For each text file in the subfolder
             for resultFile in filter(x->occursin(".txt", x), readdir(path))
 
                 fileCount += 1
-                println(path)
-
                 include(path * "/" * resultFile)
 
                 if isOptimal
@@ -371,29 +368,29 @@ function performanceDiagram(outputFile::String)
         x = Array{Float64,1}()
         y = Array{Float64,1}()
 
-        # x coordinate of the previous inflexion point
+    # x coordinate of the previous inflexion point
         previousX = 0
         previousY = 0
 
         append!(x, previousX)
         append!(y, previousY)
 
-        # Current position in the line
+    # Current position in the line
         currentId = 1
 
-        # While the end of the line is not reached
+    # While the end of the line is not reached
         while currentId != size(results, 2) && results[dim, currentId] != Inf
 
-            # Number of elements which have the value previousX
+    # Number of elements which have the value previousX
             identicalValues = 1
 
-             # While the value is the same
+        # While the value is the same
             while results[dim, currentId] == previousX && currentId <= size(results, 2)
                 currentId += 1
                 identicalValues += 1
             end
 
-            # Add the proper points
+    # Add the proper points
             append!(x, previousX)
             append!(y, currentId - 1)
 
@@ -410,15 +407,16 @@ function performanceDiagram(outputFile::String)
         append!(x, maxSolveTime)
         append!(y, currentId - 1)
 
-        # If it is the first subfolder
+    # If it is the first subfolder
         if dim == 1
 
-            # Draw a new plot
+    # Draw a new plot
             plot(x, y, label = folderName[dim], legend = :bottomright, xaxis = "Time (s)", yaxis = "Solved instances", linewidth = 3)
+            savefig(plot!(x, y, label = folderName[dim], linewidth = 3), outputFile)
 
-        # Otherwise
+    # Otherwise
         else
-            # Add the new curve to the created plot
+    # Add the new curve to the created plot
             savefig(plot!(x, y, label = folderName[dim], linewidth = 3), outputFile)
         end
     end
