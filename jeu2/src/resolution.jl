@@ -348,7 +348,7 @@ function solveDataSet()
             # If the instance has not already been solved by this method
             if !isfile(outputFile)
 
-                inst = readinputFile(dataFolder * file)
+                inst = readInputFile(dataFolder * file)
                 fout = open(outputFile, "w")
 
                 resolutionTime = -1
