@@ -50,6 +50,7 @@ struct HeuristicInstance
     C::Vector{Vector{Vector{Int64}}}
     Y::Array{Int64}
     P::Array{Vector{Int64},2} # Matrice des possibilites
+    tuple_Y::Vector{Vector{Int64}}
 end
 
 function HeuristicInstance(inst::UndeadInstance)
@@ -69,7 +70,17 @@ function HeuristicInstance(inst::UndeadInstance)
         str_rep *= string(i)
     end
     P = get_possibilities(inst)
-    return HeuristicInstance(str_rep, N, X, Z, G, V, C, Y, P)
+
+    tuple_Y = Vector{Vector{Int64}}(undef,0)
+    for i in 1:size(inst.C,1)
+        push!(tuple_Y, [i, length(inst.C[i])])
+    end
+
+    # Since it doesn't change we can compute it once
+    sort!(tuple_Y, by= x -> x[2])
+    # println(log, "tuple_Y = $tuple_Y")
+
+    return HeuristicInstance(str_rep, N, X, Z, G, V, C, Y, P, tuple_Y)
 end
 
 
@@ -122,21 +133,6 @@ function get_possibilities(inst)
 
                 # fecthing conditions
                 possibility = Vector{Int64}(undef, 0)
-                # Testing if we can add a ghost
-                if inst.G > 0
-                    is_valid = reduce(&, map(x->x[2] != 0 || x[3] - 1 >= 0, paths_in_stakes))
-                    if is_valid
-                        push!(possibility, 1)
-                    end
-                end
-
-                # Testing if we can add a vampire
-                if inst.V > 0
-                    is_valid = reduce(&, map(x->x[2] != 1 || x[3] - 1 >= 0, paths_in_stakes))
-                    if is_valid
-                        push!(possibility, 3)
-                    end
-                end
 
                 # Testing if we can add a zombie
                 if inst.Z > 0
@@ -145,6 +141,24 @@ function get_possibilities(inst)
                         push!(possibility, 2)
                     end
                 end
+                # Testing if we can add a ghost
+                if inst.G > 0
+                    is_valid = reduce(&, map(x->(x[2] != 0 || x[3] - 1 >= 0) && (x[3] - get_unfilled(inst,x[1]) <=0)
+                                             , paths_in_stakes))
+                    if is_valid
+                        push!(possibility, 1)
+                    end
+                end
+
+                # Testing if we can add a vampire
+                if inst.V > 0
+                    is_valid = reduce(&, map(x->(x[2] != 1 || x[3] - 1 >= 0) && (x[3] - get_unfilled(inst,x[1]) <=0),
+                                             paths_in_stakes))
+                    if is_valid
+                        push!(possibility, 3)
+                    end
+                end
+
 
                 P[i,j] = possibility
 
@@ -157,6 +171,15 @@ function get_possibilities(inst)
     return P
 end
 
+function get_unfilled(inst,path)
+    unfilled = 0
+    for cell in inst.C[path]
+        if inst.X[cell[1], cell[2]] == 0
+            unfilled +=1
+        end
+    end
+    return unfilled
+end
 
 # TODO: let the user define the function by for the sort algorithm
 """
@@ -170,7 +193,25 @@ function sort_by_possibilities(inst::HeuristicInstance, cells::Vector{Vector{Int
 end
 
 function sort_by_paths_length(inst::HeuristicInstance, cells::Vector{Vector{Int64}})
-    # return sort(cells, by = x -> min(map( x -> )))
+    return sort(cells,
+                by = cell ->
+                minimum( map( path -> length( inst.C[path[1]] ),
+                          get_paths_in_stakes( inst, cell[1], cell[2] ) ) ) )
+end
+
+
+function sort_by_path(inst::HeuristicInstance, cells::Vector{Vector{Int64}},log)
+    res = Vector{Vector{Int64}}(undef,0)
+    for path in inst.tuple_Y
+        # filter cells that is involved in path[1] then sort them by  number of possibilities
+        to_be_pushed = sort(filter( cell -> path[1] in map( x -> x[1], get_paths_in_stakes(inst,cell[1], cell[2])), cells), by = y -> length(inst.P[y[1], y[2]]))
+        for el in to_be_pushed
+            if !(el in res)
+                push!(res, el)
+            end
+        end
+    end
+    return res
 end
 
 
@@ -220,15 +261,40 @@ function create_modified(inst::HeuristicInstance, i::Int64, j::Int64, v::Int64)
 end
 
 
+"""
+Function that test whether an instance is valid. It tests four things :
+ - if there is enough monsters to fill the grid,
+ - if on each path we don't see too much monsters,
+ - if there is no path that filled in monsters but one don't see the good count
+   of monsters,
+ - if each unfilled cell have possibilities to be filled.
+"""
 function is_valid(inst::HeuristicInstance)
     # Test whether there is a type of monster that is over use
     if inst.Z < 0 || inst.G < 0 || inst.V < 0
         return false
     end
 
-    # Test whether there is a path on which we see too many monsters
-    for i in inst.Y
-        if i < 0
+    for i in 1:size(inst.C,1)
+        # Test whether there is a path that is impossible
+        if inst.Y[i] > 0
+            unfilled = 0
+            for coord in inst.C[i]
+                if inst.X[coord[1], coord[2]] == 0
+                    unfilled +=1
+                end
+            end
+            # Test whether there is a path on which we see too many monsters
+            if unfilled  == 0
+                return false
+            end
+
+            if inst.Y[i] - unfilled > 0
+                return false
+            end
+        end
+
+        if inst.Y[i] < 0
             return false
         end
     end
