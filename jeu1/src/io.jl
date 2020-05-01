@@ -264,62 +264,62 @@ Print in terminal the solution of the problem
 Arguments :
 - instance of the problem
 """
-function displaySolution(instance, log=stdout)
-    println(log,"###########################################################")
-    println(log,"                   Game Undead : Solution")
-    println(log,"###########################################################")
-    println(log,"")
+function displaySolution(instance, log = stdout)
+    println(log, "###########################################################")
+    println(log, "                   Game Undead : Solution")
+    println(log, "###########################################################")
+    println(log, "")
 
     # print total numbers of monsters
-    print(log,"Ghosts : ")
-    println(log,instance.G)
-    print(log,"Vampires : ")
-    println(log,instance.V)
-    print(log,"Zombies : ")
-    println(log,instance.Z)
+    print(log, "Ghosts : ")
+    println(log, instance.G)
+    print(log, "Vampires : ")
+    println(log, instance.V)
+    print(log, "Zombies : ")
+    println(log, instance.Z)
 
-    println(log,"")
-    print(log," ")
+    println(log, "")
+    print(log, " ")
     Y = instance.Y
     X = instance.X
     N = instance.N
     # Print values of paths beginning on the top
     for i in 1:N[2]
-        print(log," ")
-        print(log,Y[i])
+        print(log, " ")
+        print(log, Y[i])
     end
-    println(log,"")
+    println(log, "")
     for i in 1:N[1]
         indice = 2 * (N[1] + N[2]) - i + 1
-        print(log,Y[indice]) # Print value of path beginning on the left
+        print(log, Y[indice]) # Print value of path beginning on the left
         # Print line of grid
         for j in 1:N[2]
-            print(log," ")
+            print(log, " ")
             if X[i,j] == 1
-                print(log,"G")
+                print(log, "G")
             elseif X[i,j] == 2
-                print(log,"Z")
+                print(log, "Z")
             elseif X[i,j] == 3
-                print(log,"V")
+                print(log, "V")
             elseif X[i,j] == 4
-                print(log,"/")
+                print(log, "/")
             elseif X[i,j] == 5
-                print(log,"\\")
+                print(log, "\\")
             else
-                print(log," ")
+                print(log, " ")
             end
         end
-        print(log," ")
-        println(log,Y[N[2] + i]) # Print value of path beginning on the right
+        print(log, " ")
+        println(log, Y[N[2] + i]) # Print value of path beginning on the right
     end
     # Print values of paths beginning from the bottom
-    print(log," ")
+    print(log, " ")
     for i in 1:N[2]
-        print(log," ")
+        print(log, " ")
         ind = N[1] + 2 * N[2] - i + 1
-        print(log,Y[ind])
+        print(log, Y[ind])
     end
-    println(log,"")
+    println(log, "")
 end
 
 """
@@ -381,6 +381,7 @@ function performanceDiagram(outputFile::String)
     for file in readdir(resultFolder)
 
         path = resultFolder * file
+        println("path = $path")
 
         if isdir(path)
 
@@ -391,6 +392,7 @@ function performanceDiagram(outputFile::String)
             for resultFile in filter(x->occursin(".txt", x), readdir(path))
 
                 fileCount += 1
+                println("path * " / " * resultFile = $(path * "/" * resultFile)")
                 include(path * "/" * resultFile)
 
                 if isOptimal
