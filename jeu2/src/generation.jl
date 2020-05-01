@@ -379,6 +379,9 @@ function generateDataSet()
 
     path_to_dir = "../data/"
     path_to_sol = "../dataSol/"
+    if !isdir(path_to_sol)
+        mkdir(path_to_sol)
+    end
     generic_filename = "instance_"
 
     for (n1, n2) in [(4, 4), (16, 16), (25, 25), (5, 13), (9, 10)]
