@@ -345,8 +345,8 @@ function performanceDiagram(outputFile::String)
             for resultFile in filter(x->occursin(".txt", x), readdir(path))
 
                 fileCount += 1
+                println(path)
 
-                println("path * " / " * resultFile = $(path * "/" * resultFile)")
                 include(path * "/" * resultFile)
 
                 if isOptimal
