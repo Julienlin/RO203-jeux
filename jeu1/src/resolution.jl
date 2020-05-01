@@ -97,7 +97,7 @@ end
 """
 Heuristically solve an instance
 """
-function heuristicSolve(inst::UndeadInstance)
+function heuristicSolve(inst::UndeadInstancen log=stdout)
 
     # TODO
     # println("In file resolution.jl, in method heuristicSolve(), TODO: fix input and output, define the model")
@@ -123,7 +123,7 @@ function heuristicSolve(inst::UndeadInstance)
 
     while !isempty(stack) && time()- start < 100
         cur = head(stack)
-        displaySolution(cur)
+        # displaySolution(cur,log)
         isStillFeasable = is_valid(cur) # instance est encore faisable
         isFilled = is_finished(cur) # instance est noeud terminal
         if isFilled
@@ -132,7 +132,9 @@ function heuristicSolve(inst::UndeadInstance)
                     inst.X[line, row] = cur.X[line,row]
                 end
             end
-           
+            if log != stdout
+                close(log)
+            end
             return true, time() - start
         end
         if isStillFeasable
@@ -141,8 +143,10 @@ function heuristicSolve(inst::UndeadInstance)
             # Looking at the cur node child if there is unvisited node
 
             # sorting the cur node's children
-            unfilled_cells = sort_by_possibilities(cur, get_unfilled_boxes(cur))
-
+            # unfilled_cells = sort_by_possibilities(cur, get_unfilled_boxes(cur))
+            # unfilled_cells = sort_by_paths_length(cur, get_unfilled_boxes(cur))
+            unfilled_cells = sort_by_path(cur, get_unfilled_boxes(cur),log)
+            # println(log,"unfilled_cells = $unfilled_cells")
             # for each child test all the possibilities until found an unvisited child
             for el in unfilled_cells
                 for p in cur.P[el[1],el[2]]
@@ -166,6 +170,9 @@ function heuristicSolve(inst::UndeadInstance)
             push!(visited, cur.str_rep)
             pop!(stack)
         end
+    end
+    if log != stdout
+        close(log)
     end
     return false, time() - start
 end
@@ -268,7 +275,9 @@ function solveDataSet()
                     # end
                     # Solve it and get the results
 
-                    isOptimal, resolutionTime = heuristicSolve(inst_heuristic)
+                    # log= open("result.txt", "w")
+                    log = stdout
+                    isOptimal, resolutionTime = heuristicSolve(inst_heuristic, log)
 
                     # Write the solution (if any)
                     if isOptimal

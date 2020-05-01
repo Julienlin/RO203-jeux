@@ -264,62 +264,62 @@ Print in terminal the solution of the problem
 Arguments :
 - instance of the problem
 """
-function displaySolution(instance)
-    println("###########################################################")
-    println("                   Game Undead : Solution")
-    println("###########################################################")
-    println("")
+function displaySolution(instance, log=stdout)
+    println(log,"###########################################################")
+    println(log,"                   Game Undead : Solution")
+    println(log,"###########################################################")
+    println(log,"")
 
     # print total numbers of monsters
-    print("Ghosts : ")
-    println(instance.G)
-    print("Vampires : ")
-    println(instance.V)
-    print("Zombies : ")
-    println(instance.Z)
+    print(log,"Ghosts : ")
+    println(log,instance.G)
+    print(log,"Vampires : ")
+    println(log,instance.V)
+    print(log,"Zombies : ")
+    println(log,instance.Z)
 
-    println("")
-    print(" ")
+    println(log,"")
+    print(log," ")
     Y = instance.Y
     X = instance.X
     N = instance.N
     # Print values of paths beginning on the top
     for i in 1:N[2]
-        print(" ")
-        print(Y[i])
+        print(log," ")
+        print(log,Y[i])
     end
-    println("")
+    println(log,"")
     for i in 1:N[1]
         indice = 2 * (N[1] + N[2]) - i + 1
-        print(Y[indice]) # Print value of path beginning on the left
+        print(log,Y[indice]) # Print value of path beginning on the left
         # Print line of grid
         for j in 1:N[2]
-            print(" ")
+            print(log," ")
             if X[i,j] == 1
-                print("G")
+                print(log,"G")
             elseif X[i,j] == 2
-                print("Z")
+                print(log,"Z")
             elseif X[i,j] == 3
-                print("V")
+                print(log,"V")
             elseif X[i,j] == 4
-                print("/")
+                print(log,"/")
             elseif X[i,j] == 5
-                print("\\")
+                print(log,"\\")
             else
-                print(" ")
+                print(log," ")
             end
         end
-        print(" ")
-        println(Y[N[2] + i]) # Print value of path beginning on the right
+        print(log," ")
+        println(log,Y[N[2] + i]) # Print value of path beginning on the right
     end
     # Print values of paths beginning from the bottom
-    print(" ")
+    print(log," ")
     for i in 1:N[2]
-        print(" ")
+        print(log," ")
         ind = N[1] + 2 * N[2] - i + 1
-        print(Y[ind])
+        print(log,Y[ind])
     end
-    println("")
+    println(log,"")
 end
 
 """
