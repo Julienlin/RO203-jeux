@@ -132,9 +132,6 @@ function heuristicSolve(inst::UndeadInstance, log=stdout)
                     inst.X[line, row] = cur.X[line,row]
                 end
             end
-            if log != stdout
-                close(log)
-            end
             return true, time() - start
         end
         if isStillFeasable
@@ -170,9 +167,6 @@ function heuristicSolve(inst::UndeadInstance, log=stdout)
             push!(visited, cur.str_rep)
             pop!(stack)
         end
-    end
-    if log != stdout
-        close(log)
     end
     return false, time() - start
 end

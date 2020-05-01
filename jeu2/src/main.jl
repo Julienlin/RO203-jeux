@@ -1,7 +1,7 @@
 include("instance.jl")
 include("io.jl")
 include("generation.jl")
-# include("resolution.jl")
+include("resolution.jl")
 
 function main()
     # instance = readInputFile("test.txt")
@@ -19,6 +19,7 @@ function main()
     # displayGridSolution(instance)
 
     generateDataSet()
+    solveDataSet()
 end
 
 main()

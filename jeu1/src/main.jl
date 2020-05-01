@@ -15,6 +15,7 @@ function main()
 
     log= open("result.txt", "w")
     solveDataSet(log)
+    close(log)
     resultsArray("resultFile.tex")
     performanceDiagram("performanceDiagram")
     # is_feasable, t = heuristicSolve(instance)
