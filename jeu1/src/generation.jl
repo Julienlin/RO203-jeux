@@ -9,7 +9,6 @@ Argument
 - N: size of the grid (tuple of 2 dimensions)
 """
 function generateInstance(N::Array{Int64})
-
     # Array that will contain the generated grid
     X = zeros(Int, N[1], N[2])
     # Counting the total number of monsters at the same time
@@ -19,7 +18,6 @@ function generateInstance(N::Array{Int64})
     for i in 1:N[1]
         for j in 1:N[2]
             # choosing randomly the type of the cell (mirror, monster)
-
             mirror = rand()
             if mirror < 1 / 5 # probability of having a mirror
                 if rand() < 1 / 2
@@ -41,7 +39,6 @@ function generateInstance(N::Array{Int64})
             end
         end
     end
-
     C = createPath(N, X)
     # Array that contains the values of each path
     Y = zeros(Int, 2 * (N[1] + N[2]))
@@ -49,16 +46,18 @@ function generateInstance(N::Array{Int64})
         chemin = C[c]
         for i in 1:size(chemin, 1)
             cell = chemin[i]
-            if X[cell[1],cell[2]] == 2 # Si il y a un zombie dans la case, on le voit
+            # Si il y a un zombie dans la case, on le voit
+            if X[cell[1],cell[2]] == 2
                 Y[c] += 1
-            elseif X[cell[1],cell[2]] == 1 && cell[3] == 0 # Si il y a un fantome et qu'on est en reflexion r/r a un miroir
+            # Si il y a un fantome et qu'on est en reflexion r/r a un miroir
+            elseif X[cell[1],cell[2]] == 1 && cell[3] == 0
                 Y[c] += 1
-            elseif X[cell[1],cell[2]] == 3 && cell[3] == 1 # Si il y a un vampire et qu'on est en vision directe
+            # Si il y a un vampire et qu'on est en vision directe
+            elseif X[cell[1],cell[2]] == 3 && cell[3] == 1
                 Y[c] += 1
             end
         end
     end
-
     return UndeadInstance(N, X, Z, G, V, C, Y)
 end
 

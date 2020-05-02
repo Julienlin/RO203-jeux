@@ -50,6 +50,7 @@ struct HeuristicInstance
     C::Vector{Vector{Vector{Int64}}}
     Y::Array{Int64}
     P::Array{Vector{Int64},2} # Matrice des possibilites
+    # Tuple_Y tableau de tuple numero du chemin et nombre de monstres visibles
     tuple_Y::Vector{Vector{Int64}}
 end
 
@@ -76,8 +77,6 @@ function HeuristicInstance(inst::UndeadInstance)
         push!(tuple_Y, [i, length(inst.C[i])])
     end
 
-    # Remove filled paths
-    filter!(x -> get_unfilled(inst.x[1]) > 0, tuple_Y)
     # Since it doesn't change we can compute it once
     sort!(tuple_Y, by= x -> x[2] + get_unfilled(inst,x[1]))
     # println(log, "tuple_Y = $tuple_Y")
@@ -212,7 +211,8 @@ function sort_by_path(inst::HeuristicInstance, cells::Vector{Vector{Int64}},log)
     res = Vector{Vector{Int64}}(undef,0)
     for path in inst.tuple_Y
         # filter cells that is involved in path[1] then sort them by  number of possibilities
-        to_be_pushed = sort(filter( cell -> path[1] in map( x -> x[1], get_paths_in_stakes(inst,cell[1], cell[2])), cells), by = y -> length(inst.P[y[1], y[2]]))
+        to_be_pushed = sort(filter( cell -> path[1] in map( x -> x[1],
+                                                            get_paths_in_stakes(inst,cell[1], cell[2])), cells), by = y -> length(inst.P[y[1], y[2]]))
         for el in to_be_pushed
             if !(el in res)
                 push!(res, el)
@@ -282,7 +282,6 @@ function is_valid(inst::HeuristicInstance)
     if inst.Z < 0 || inst.G < 0 || inst.V < 0
         return false
     end
-
     for i in 1:size(inst.C,1)
         # Test whether there is a path that is impossible
         if inst.Y[i] > 0
@@ -296,17 +295,14 @@ function is_valid(inst::HeuristicInstance)
             if unfilled  == 0
                 return false
             end
-
             if inst.Y[i] - unfilled > 0
                 return false
             end
         end
-
         if inst.Y[i] < 0
             return false
         end
     end
-
     # Test whether there is a box with no possibility and that it is not filled
     for i in 1:inst.N[1]
         for j in 1:inst.N[2]

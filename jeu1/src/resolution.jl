@@ -10,28 +10,18 @@ TOL = 0.00001
 Solve an instance with CPLEX
 """
 function cplexSolve(inst::UndeadInstance)
-
     N = inst.N
     Z = inst.Z
     G = inst.G
     V = inst.V
     Y = inst.Y
     C = inst.C
-
-
     # Create the model
     m = Model(CPLEX.Optimizer)
-
-    # TODO
-    # println("In file resolution.jl, in method cplexSolve(), TODO: fix input and output, define the model")
-
     # Declare the variable
     @variable(m, x[1:N[1], 1:N[2], 1:5], Bin)
-
     # Declare the constraints
-
     ## Constraint on mirrors place on the grid
-
     for i in 1:N[1]
         for j in 1:N[2]
             if inst.X[i,j] == 4 || inst.X[i,j] == 5
@@ -39,38 +29,21 @@ function cplexSolve(inst::UndeadInstance)
             end
         end
     end
-
-    # @constraint(m,[ i in 1:N[1], j in 1:N[2]; inst.X[i,j] == 4 || inst.X[i,j] == 5 ], x[i,j,inst.X[i,j]] == 1)
-
-
-
     ## Constraint on unicity of the type of box
     @constraint(m, [i = 1:N[1], j = 1:N[2]], sum(x[i,j,k] for k in 1:5) == 1)
-
     ## Constraint on number of monsters per type
     @constraint(m, sum(x[i,j, 1] for i = 1:N[1], j = 1:N[2]) == G)
     @constraint(m, sum(x[i,j, 2] for i = 1:N[1], j = 1:N[2]) == Z)
     @constraint(m, sum(x[i,j, 3] for i = 1:N[1], j = 1:N[2]) == V)
-
-    ## Constraint on number of monsters per path
-    # for c in 1:size(C, 1)
-    #     for el in 1:size(C[c], 1)
-
-    #     end
-    # end
-
     @constraint(m, [c = 1:size(C, 1)], 0 + sum(x[ C[c][el][1], C[c][el][2], 2 ] for el in 1:size(C[c], 1)) # number of zombies on the path
                                     + sum(x[ C[c][el][1], C[c][el][2], 3 ] * C[c][el][3] for el in 1:size(C[c], 1)) # number of vampires on the path
                                     + sum(x[C[c][el][1], C[c][el][2], 1] * (1 - C[c][el][3]) for el in 1:size(C[c], 1)) # number of ghosts on the path
                                     == Y[c] )
     # Start a chronometer
     start = time()
-
     # Solve the model
     optimize!(m)
-
     buf = JuMP.value.(x)
-
     for i in 1:size(buf, 1)
         for j in 1:size(buf, 2)
             for k in 1:size(buf, 3)
@@ -80,12 +53,7 @@ function cplexSolve(inst::UndeadInstance)
             end
         end
     end
-
-    # Return:
-    # 1 - true if an optimum is found
-    # 2 - the resolution time
     return JuMP.primal_status(m) == JuMP.MathOptInterface.FEASIBLE_POINT, time() - start
-
 end
 
 
@@ -98,32 +66,16 @@ end
 Heuristically solve an instance
 """
 function heuristicSolve(inst::UndeadInstance, log = stdout)
-
-    # TODO
-    # println("In file resolution.jl, in method heuristicSolve(), TODO: fix input and output, define the model")
-
     h_inst = HeuristicInstance(inst)
-
     N = h_inst.N
-
     isFilled = false
-
     isStillFeasable = true
-
     visited = Vector{String}(undef, 0)
-
     stack = Vector{HeuristicInstance}(undef, 0)
-
     push!(stack, h_inst)
-
-    # filled_cells = Vector{Vector{Int64}}
-    # unfilled_cells = sort_cells_by_possibilities( get_unfilled_cells( h_inst ) )
-
     start = time()
-
     while !isempty(stack) && time() - start < 100
         cur = head(stack)
-        # displaySolution(cur,log)
         isStillFeasable = is_valid(cur) # instance est encore faisable
         isFilled = is_finished(cur) # instance est noeud terminal
         if isFilled
@@ -136,14 +88,9 @@ function heuristicSolve(inst::UndeadInstance, log = stdout)
         end
         if isStillFeasable
             is_child = false
-
             # Looking at the current node child if there is unvisited node
-
             # sorting the cur node's children
-            # unfilled_cells = sort_by_possibilities(cur, get_unfilled_boxes(cur))
-            # unfilled_cells = sort_by_paths_length(cur, get_unfilled_boxes(cur))
             unfilled_cells = sort_by_path(cur, get_unfilled_boxes(cur), log)
-            # println(log,"unfilled_cells = $unfilled_cells")
             # for each child test all the possibilities until found an unvisited child
             for el in unfilled_cells
                 for p in cur.P[el[1],el[2]]
@@ -158,7 +105,6 @@ function heuristicSolve(inst::UndeadInstance, log = stdout)
                     break
                 end
             end
-
             if !is_child # no child found : leaf
                 push!(visited, cur.str_rep)
                 pop!(stack)
