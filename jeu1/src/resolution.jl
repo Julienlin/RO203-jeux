@@ -137,7 +137,7 @@ function heuristicSolve(inst::UndeadInstance, log = stdout)
         if isStillFeasable
             is_child = false
 
-            # Looking at the cur node child if there is unvisited node
+            # Looking at the current node child if there is unvisited node
 
             # sorting the cur node's children
             # unfilled_cells = sort_by_possibilities(cur, get_unfilled_boxes(cur))

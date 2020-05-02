@@ -14,7 +14,7 @@ function main()
     # generateDataSet()
 
     # log= open("result.txt", "w")
-    # solveDataSet()
+    solveDataSet()
     # close(log)
     resultsArray("resultFile.tex")
     performanceDiagram("performanceDiagram")

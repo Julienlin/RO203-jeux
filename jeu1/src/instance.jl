@@ -76,6 +76,8 @@ function HeuristicInstance(inst::UndeadInstance)
         push!(tuple_Y, [i, length(inst.C[i])])
     end
 
+    # Remove filled paths
+    filter!(x -> get_unfilled(inst.x[1]) > 0, tuple_Y)
     # Since it doesn't change we can compute it once
     sort!(tuple_Y, by= x -> x[2] + get_unfilled(inst,x[1]))
     # println(log, "tuple_Y = $tuple_Y")

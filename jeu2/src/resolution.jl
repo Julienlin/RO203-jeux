@@ -214,8 +214,8 @@ function heuristicSolve(inst::GalaxyInstance)
                     isCell = true
                 end
             end
-            if j==0
-                push!(visited,cur)
+            if j == 0
+                push!(visited, cur)
                 # deleteat!(stack,lastindex(stack))
                 pop!(stack)
                 break
@@ -246,11 +246,11 @@ function heuristicSolve(inst::GalaxyInstance)
                     newinst.X[sym_cell[1],sym_cell[2]] = newinst.X[cell[1],cell[2]]
                     push!(newinst.frontieres, new_cell)
                     push!(newinst.frontieres, sym_cell)
-                    if !in(cur,visited)
+                    if !in(cur, visited)
                         isChild = true
                         push!(stack, newinst)
                     else
-                        v+=1
+                        v += 1
                     end
                 else
                     v += 1
@@ -263,7 +263,7 @@ function heuristicSolve(inst::GalaxyInstance)
         end
 
     end
-    displayGridSolution(cur)
+    # displayGridSolution(cur)
     return false, time() - start
 end
 
