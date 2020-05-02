@@ -20,7 +20,7 @@ function main()
     # println(" C = $(instance.C)")
     # displayGridSolution(instance)
 
-    # generateDataSet()
+    generateDataSet()
     solveDataSet()
     performanceDiagram("performanceDiagram.png")
     resultsArray("resultFile.tex")
