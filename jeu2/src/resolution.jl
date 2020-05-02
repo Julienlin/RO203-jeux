@@ -181,6 +181,7 @@ function heuristicSolve(inst::GalaxyInstance)
     push!(stack, GalaxyToHeuristic(inst, frontieres))
 
     start = time()
+    cur = head(stack)
 
     while !isempty(stack) && time() - start < 100
         cur = head(stack)
@@ -262,7 +263,7 @@ function heuristicSolve(inst::GalaxyInstance)
         end
 
     end
-
+    displayGridSolution(cur)
     return false, time() - start
 end
 
@@ -322,7 +323,8 @@ function solveDataSet()
 
     # Array which contains the name of the resolution methods
     # resolutionMethod = ["cplex"]
-    resolutionMethod = ["cplex", "heuristique"]
+    resolutionMethod = ["heuristique"]
+    # resolutionMethod = ["cplex", "heuristique"]
 
     # Array which contains the result folder of each resolution method
     resolutionFolder = resFolder .* resolutionMethod
